@@ -1,0 +1,10 @@
+// all variables in sass start with $ sign
+$color: blue;
+ul {
+    font-size: 14px;
+    color: $color;
+}
+ol {
+    font-size: 24px;
+    color: $color;
+}
