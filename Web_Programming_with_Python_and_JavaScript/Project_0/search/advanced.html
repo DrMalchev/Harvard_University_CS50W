@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Advanced Search</title>
+    <style>
+        #logo {
+            display: block;
+            width: 70px;
+            margin-bottom: 40px;
+            margin-left: 10px;
+        }
+
+        #head {
+            color: rgb(236, 14, 14);
+            margin-left: 50px;
+            font-size: 20px;
+        }
+
+        hr {
+            border-top: 1px solid lightgray;
+        }
+
+        #grid_header {
+
+            display: grid;
+            margin-left: 50px;
+            grid-column-gap: 10px;
+            grid-row-gap: 0px;
+            grid-template-columns: 200px 50% auto;
+            font-size: 16px;
+            text-align: left;
+        }
+
+        #select_bold {
+            font-weight: bold;
+            font-size: 14px;
+            text-align: left;
+        }
+
+        .grid-item {
+
+            font-size: 20px;
+            padding: 20px 0px 20px 0px;
+            text-align: left;
+
+        }
+
+        #grid {
+            margin-left: 50px;
+            display: grid;
+
+            grid-column-gap: 10px;
+            grid-row-gap: 10px;
+            grid-template-columns: 200px 50% auto;
+            font-size: 14px;
+            text-align: left;
+        }
+
+        .space {
+            margin-top: 5px;
+        }
+
+        .space2 {
+            margin-bottom: 15px;
+            
+            height: 30px;
+        }
+        .grid-item3 {
+            margin-left: 10px;
+        }
+
+
+        input[type=text] {
+            display: block;
+            border: solid 1px lightgray;
+            width: 100%;
+        }
+
+        input[type=submit] {
+            display: block;
+            float: right;
+
+            margin-top: 20px;
+            width: 150px;
+            padding: 10px;
+            font-weight: 400;
+            font-size: 12px;
+            border-radius: 1px;
+            border: solid 1px blue;
+            background-color: rgb(80, 80, 247);
+            color: white;
+        }
+
+        input[type=submit]:hover {
+            background-color: blue;
+        }
+
+        input:focus {
+            outline: 1px solid blue;
+        }
+
+        ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        li {
+            float: left;
+        }
+
+        li a {
+            display: block;
+            color: black;
+            text-align: center;
+            padding: 16px;
+            text-decoration: none;
+        }
+
+        li a:hover {
+            text-decoration: underline;
+        }
+
+        .navbar {
+            display: block;
+            float: right;
+            display: inline-block;
+            margin-top: 0px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="navbar">
+        <ul>
+            <li><a href="index.html">Google Search</a></li>
+        </ul>
+    </div>
+    <br>
+    <a href="index.html"><img id="logo" src="images/google_logo.png" alt="google logo"></a>
+    
+    <p id="head">Advanced Search</p>
+    <hr>
+    <div id="grid_header">
+        <div class="grid-item">Find pages with...</div>
+        <div class="grid-item"></div>
+        <div id="select_bold" class="grid-item">To do this in the search box.</div>
+
+    </div>
+
+    <div id="grid">
+        <div class="grid-item2">
+            <p class="space">all these words:</p>
+            <br>
+            <p class="space">this exact word or phrase:</p>
+            <br>
+            <p class="space">any of these words:</p>
+            <br>
+            <p class="space">none of these words:</p>
+        </div>
+
+        <div class="grid-item2">
+            <form action="https://google.com/search">
+                <input class="space2" type="text" name="as_q">
+                <input class="space2" type="text" name="as_epq">
+                <input class="space2" type="text" name="as_oq">
+                <input class="space2" type="text" name="as_eq">
+                <input type="submit" value="Advanced Search">
+            </form>
+        </div>    
+
+        <div class="grid-item3">
+        <p class="space">Type the important words: tri-colour rat terrier</p>
+        <br>
+        <p class="space">Put exact words in quotes: "rat terrier"</p>
+        <br>
+        <p class="space">Type OR between all the words you want: miniature OR standard</p>
+        <br>
+        <p class="space">Put a minus sign just before words that you don't want: -rodent, -"Jack Russell"</p>
+
+        </div>
+
+    </div>
+
+
+
+</body>
+
+</html>
