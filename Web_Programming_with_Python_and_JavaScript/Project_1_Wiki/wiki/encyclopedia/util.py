@@ -5,8 +5,7 @@ from django.core.files.storage import default_storage
 
 
 import os
-import markdown
-from bs4 import BeautifulSoup
+
 
 def list_entries():
     """
