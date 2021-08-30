@@ -3,11 +3,13 @@ from django.http.response import HttpResponse
 from django.shortcuts import render
 
 from . import util
+from django import forms
 
 import markdown2 # underlined yellow but works fine for me. no action needed.
 #models.py
 from .models import *
 from django.http.response import HttpResponseRedirect
+
 
 
 def index(request):
@@ -64,9 +66,54 @@ def search(request):
             return render(request, "encyclopedia/searchNotFound.html", {
             "search_key": search_key
                 })
+ 
+  
+
+def new(request):
+    entries = [entry.lower() for entry in util.list_entries()]
+    
+    if(request.POST):
         
+        data = request.POST.dict()
+        title = data.get("qTitle")
+        article = data.get("qArticle")
+        
+        if title not in entries:
+            util.save_entry(title,article)
+            return HttpResponseRedirect(f"wiki/{title}")
+        else:
+            return render(request, "encyclopedia/newExists.html", {})
+    
+        
+    else:
+        return render(request, "encyclopedia/new.html",{})
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    """ if request.method=="POST":
+        
+        if newForm.is_valid():
+            title=NewEntry.title
+            article=form.article
 
+            for entry in entries:
+                if title==entry:
+                    render(request, "encyclopedia/newExists.html", {})
+        else:
+            return render(request, "encyclopedia/new.html", {})
 
+    return render(request, "encyclopedia/new.html",     {
+        "form": NewEntry()
+    }) """
+
+    
      
     
         

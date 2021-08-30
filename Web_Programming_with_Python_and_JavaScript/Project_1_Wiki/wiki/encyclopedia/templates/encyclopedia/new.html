@@ -1,0 +1,20 @@
+{% extends "encyclopedia/layout.html" %}
+
+{% block title %}
+Create New Page
+{% endblock %}
+
+{% block body %}
+    <h1>Create new page</h1>
+
+    <form name="newForm" action="{% url 'new' %}" method="POST">
+        {% csrf_token %}
+        <input class="newTitle" type="text" name="qTitle" placeholder="Enter Title...">
+        <br>
+        <textarea style="height: 200px; width: 400px; margin-top: 10px; margin-bottom: 10px;" name="qArticle" class="newArticle" type="text"  placeholder="Enter your article here..." cols="30" rows="10"></textarea>
+        <br>
+        <input type="submit" value="Save">
+    </form>
+    
+
+{% endblock %}
