@@ -28,32 +28,45 @@ def title(request, title_name):
     })
     
 def search(request):
-    #if request.method == "GET":
-        
-    
+         
     search_key=request.POST.get('q')
-    return HttpResponseRedirect(f"wiki/{search_key}")
-    #entries = [x.lower() for x in util.list_entries()]
-    #find_entries = list()
+    entries = [entry.lower() for entry in util.list_entries()]
 
-    #search_key = request.POST.get('q',"")
-    #return render(request, "encyclopedia/search.html", {"no_result": f"No results for {search_key}"})
-        
+    if search_key=="":
+        return render(request, "encyclopedia/searchNotFound.html", {
+                "search_key": search_key,
+        })
 
-    #if search_key.lower() in entries:
-        #return HttpResponseRedirect(f"wiki/{search_key}")
-    #return HttpResponseRedirect("wiki/css")
-        
-    """ for entry in entries:
-        if search_box in entry:
-            find_entries.append(entry)
-        else:
-            print(f'{find_entries}')
-    if find_entries:
-        return render(request, "encyclopedia/search.html", {
-          "search_result": find_entries,
-          "search": search_box
-    })
+    if search_key.lower() in entries:
+        return HttpResponseRedirect(f"wiki/{search_key}")
+    
     else:
-        return render(request, "encyclopedia/search.html", {"no_result": f"No results for {search_box}"}) """
+        search_list=[]
+        substr_list=[]
+        for entry in range(len(entries)):
+            if search_key in entries[entry]:
+                search_list.append(search_key)
+                substr_list.append(entries[entry])
+                
+            else:
+                continue
+
+        substr_len=len(substr_list)
+
+        if substr_len!=0:
+            return render(request, "encyclopedia/search.html", {
+                "search_key": search_list[0],
+                "substring": substr_list,
+                "substr_len": substr_len
+                
+                })
+        else:
+            return render(request, "encyclopedia/searchNotFound.html", {
+            "search_key": search_key
+                })
+        
+
+
+     
+    
         

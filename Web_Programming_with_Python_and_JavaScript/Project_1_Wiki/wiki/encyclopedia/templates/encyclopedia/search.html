@@ -6,7 +6,18 @@
 {% endblock %}
 
 {% block body %}
-<p>aaaaaaa</p>
-    <!-- <p>{{search_key|safe}}</p> -->
+
+     <p>Search keyword "{{search_key|safe}}" is part of {{substr_len|safe}} pages: </p>
+
+     {% for substr in substring%}
+
+     <li>
+        <a href="wiki/{{substr}}">{{substr}}</a>
+     </li>
+
+
+     <!-- <p>{{substr|safe}} </p> -->
+     {% endfor %}
+
 
 {% endblock %}
