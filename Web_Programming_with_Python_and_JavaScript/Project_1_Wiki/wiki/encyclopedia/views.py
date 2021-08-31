@@ -89,31 +89,28 @@ def new(request):
         return render(request, "encyclopedia/new.html",{})
     
     
-    
-    
-    
-    
-    
-    
-    
-    
-    """ if request.method=="POST":
+def edit(request, title):
         
-        if newForm.is_valid():
-            title=NewEntry.title
-            article=form.article
+        if(request.POST):
+            data = request.POST.dict()
+            #title = str (title.capitalize())
+            article = data.get("qArticle")
+            util.save_entry(title,article)
 
-            for entry in entries:
-                if title==entry:
-                    render(request, "encyclopedia/newExists.html", {})
+            return HttpResponseRedirect(f"/wiki/{title}")
+        
         else:
-            return render(request, "encyclopedia/new.html", {})
-
-    return render(request, "encyclopedia/new.html",     {
-        "form": NewEntry()
-    }) """
-
-    
-     
-    
         
+            return render(request, f"encyclopedia/edit.html",{
+        "title": title,
+        "entry_md": util.get_entry(title)
+        #"entry": markdown2.markdown(util.get_entry(title_name))
+        })  
+
+def delete(request, title):
+    util.delete_entry(title)
+    return render(request, "encyclopedia/delete.html", {
+                "title": title
+        })
+    
+
