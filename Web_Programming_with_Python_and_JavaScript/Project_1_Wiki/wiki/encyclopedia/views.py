@@ -4,11 +4,13 @@ from django.shortcuts import render
 
 from . import util
 from django import forms
+import random
 
 import markdown2 # underlined yellow but works fine for me. no action needed.
 #models.py
 from .models import *
 from django.http.response import HttpResponseRedirect
+from django.shortcuts import redirect
 
 
 
@@ -112,5 +114,13 @@ def delete(request, title):
     return render(request, "encyclopedia/delete.html", {
                 "title": title
         })
-    
+
+def random_page(request):
+    entries=util.list_entries()
+    rtitle = random.choice(entries)
+    return render(request, "encyclopedia/random_page.html",{
+        "title": str (rtitle.capitalize()),
+        "entry": markdown2.markdown(util.get_entry(rtitle))
+        })
+
 
