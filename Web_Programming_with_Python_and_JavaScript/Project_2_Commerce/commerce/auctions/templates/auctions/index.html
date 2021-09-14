@@ -6,7 +6,7 @@
 <table style="border: 1px solid black; text-align: center;">
     <tr style="border: 1px solid black; text-align: center;">
         <th style="width: 50px;">Nr</th>
-        <th style="width: 100px;">Image URL</th>
+        <th style="width: 100px;">Image</th>
         <th style="width: 100px;">Title</th>
         <th style="width: 200px;">Description</th>
         <th style="width: 100px;">Category</th>
@@ -16,7 +16,16 @@
     
     <tr style="border: 1px solid black; text-align: center;">
         <td>{{listing.pk}}</td>
-        <td> <a href="{{ listing.image_url}}">{{listing.image_url|truncatechars:20}}</a></td>
+        <!-- <td> <a href="{{ listing.image_url}}">{{listing.image_url|truncatechars:20}}</a></td> -->
+        <td>
+            {% load static %} 
+            {% if not listing.image_url %}
+                <img style="height: 50px;" src="{% static 'images/nopic.png' %}" alt="no image">
+            {% elif listing.image_url %}
+                <img style="display: block; height: 50px; margin: auto;" src="{{listing.image_url}}" alt="image">
+            {% endif %}
+            
+        </td>
         <td>{{listing.title}}</td>
         <td>{{listing.description}}</td>
 

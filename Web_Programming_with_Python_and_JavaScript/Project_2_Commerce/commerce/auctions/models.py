@@ -26,7 +26,7 @@ class Listings(models.Model):
     new_bid = models.FloatField(validators=[MinValueValidator(0.01)])
 
     def __str__(self):
-        return f"{self.title} ::: {self.category} ::: {self.description} ::: {self.starting_bid}"
+        return f"{self.title}   :::   {self.category}   :::    {self.starting_bid}"
 
 class Bids(models.Model):
     pass
