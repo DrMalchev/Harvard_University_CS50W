@@ -1,7 +1,29 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-    <h2>Active Listings</h2>
+<h2>Active Listings</h2>
 
-    TODO
+<table style="border: 1px solid black; text-align: center;">
+    <tr style="border: 1px solid black; text-align: center;">
+        <th style="width: 50px;">Nr</th>
+        <th style="width: 100px;">Image URL</th>
+        <th style="width: 100px;">Title</th>
+        <th style="width: 200px;">Description</th>
+        <th style="width: 100px;">Category</th>
+        <th style="width: 50px;">Bid</th>
+    </tr>
+    {% for listing in Listings %}
+    
+    <tr style="border: 1px solid black; text-align: center;">
+        <td>{{listing.pk}}</td>
+        <td> <a href="{{ listing.image_url}}">{{listing.image_url|truncatechars:20}}</a></td>
+        <td>{{listing.title}}</td>
+        <td>{{listing.description}}</td>
+
+        <td>{{listing.category}}</td>
+
+        <td>{{listing.starting_bid}}</td>
+    </tr>
+    {% endfor %}
+</table>
 {% endblock %}

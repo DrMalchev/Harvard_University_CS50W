@@ -9,7 +9,7 @@ from .models import Listings, User, Bids, Comments
 
 
 def index(request):
-    return render(request, "auctions/index.html")
+    return render(request, "auctions/index.html", {"Listings": Listings.objects.all()})
 
 
 def login_view(request):
@@ -64,26 +64,30 @@ def register(request):
         return render(request, "auctions/register.html")
 
 def add_listing(request):
-    listing = Listings.objects.create(
-        title="dummy", 
-        description="dummy", 
-        category=5, 
-        image_url="images/NoPic.png", 
-        starting_bid = 0.01,
-        new_bid = 0.01,
-        comment = "dummy"
-        )
+    
 
     if request.method == 'POST':
         
         form = AddListingForm(request.POST)
             
         if form.is_valid():
-            listing.title = form.cleaned_data['title']
-            listing.description = form.cleaned_data['description']
-            listing.category = form.cleaned_data['category']
-            listing.image_url = form.cleaned_data['image_url']
-            listing.starting_bid = form.cleaned_data['starting_bid']
+
+            if form.cleaned_data['image_url']!=None:
+                image_assigned = form.cleaned_data['image_url']
+            else:
+                image_assigned = "No URL"
+
+            listing = Listings.objects.create(
+            title=form.cleaned_data['title'], 
+            description=form.cleaned_data['description'], 
+            category=form.cleaned_data['category'], 
+            image_url=image_assigned, 
+            starting_bid = form.cleaned_data['starting_bid'],
+            new_bid = 0.01,
+            comment = "dummy"
+            )
+
+            listing.save()
                 
             return HttpResponseRedirect(reverse("index"))
 
@@ -92,3 +96,5 @@ def add_listing(request):
         form = AddListingForm()
 
         return render(request, 'auctions/add_listing.html', {'form': form})
+    
+

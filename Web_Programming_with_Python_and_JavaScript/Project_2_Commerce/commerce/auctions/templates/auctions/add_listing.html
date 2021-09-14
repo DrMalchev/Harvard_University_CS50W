@@ -3,9 +3,34 @@
 {% block body %}
     <h2>Add Listing</h2>
 
-    <form action="{% url 'add_listing' %}" method="post">
+    <form  action="{% url 'add_listing' %}" method="post">
         {% csrf_token %}
-        {{ form }}
+        <table>
+            <tr>
+                <td>Title: </td>
+                <td>{{form.title}}</td>
+                
+            </tr>
+            <tr>
+                <td>Description: </td>
+                <td>{{form.description}}</td>
+            </tr>
+            <tr>
+                <td>Category: </td>
+                <td>{{form.category}}</td>
+            </tr>
+            <tr>
+                <td>Image Url: </td>
+                <td>{{form.image_url}}</td>
+            </tr>
+            <tr>
+                <td>Bid: </td>
+                <td>{{form.starting_bid}}</td>
+            </tr>
+        </table>
+        
+        <br>
+        
         <input type="submit" value="Add Listing">
     </form>
 

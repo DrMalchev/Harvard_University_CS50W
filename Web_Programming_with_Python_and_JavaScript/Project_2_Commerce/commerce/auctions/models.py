@@ -9,18 +9,18 @@ class User(AbstractUser):
 class Listings(models.Model):
 
     categories = (
-        (1, 'Fashion'),
-        (2, 'Toys'),
-        (3, 'Electronics'),
-        (4, 'Home'),
-        (5, 'Other')
+        ('Fashion', 'Fashion'),
+        ('Toys', 'Toys'),
+        ('Electronics', 'Electronics'),
+        ('Home', 'Home'),
+        ('Other', 'Other')
     )
 
     title = models.CharField(max_length=64)
     description = models.CharField(max_length=124)
     starting_bid = models.FloatField(validators=[MinValueValidator(0.01)])
     image_url = models.URLField(max_length=124)
-    category = models.IntegerField(choices=categories)
+    category = models.CharField(max_length=64, choices=categories)
 
     comment = models.CharField(max_length=124)
     new_bid = models.FloatField(validators=[MinValueValidator(0.01)])
