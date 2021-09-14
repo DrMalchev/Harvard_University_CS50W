@@ -1,10 +1,11 @@
+from auctions.forms import AddListingForm
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 
-from .models import User
+from .models import Listings, User, Bids, Comments
 
 
 def index(request):
@@ -61,3 +62,33 @@ def register(request):
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "auctions/register.html")
+
+def add_listing(request):
+    listing = Listings.objects.create(
+        title="dummy", 
+        description="dummy", 
+        category=5, 
+        image_url="images/NoPic.png", 
+        starting_bid = 0.01,
+        new_bid = 0.01,
+        comment = "dummy"
+        )
+
+    if request.method == 'POST':
+        
+        form = AddListingForm(request.POST)
+            
+        if form.is_valid():
+            listing.title = form.cleaned_data['title']
+            listing.description = form.cleaned_data['description']
+            listing.category = form.cleaned_data['category']
+            listing.image_url = form.cleaned_data['image_url']
+            listing.starting_bid = form.cleaned_data['starting_bid']
+                
+            return HttpResponseRedirect(reverse("index"))
+
+    
+    else:
+        form = AddListingForm()
+
+        return render(request, 'auctions/add_listing.html', {'form': form})
