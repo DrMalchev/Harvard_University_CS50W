@@ -1,11 +1,12 @@
+from django.contrib.auth.models import update_last_login
 from auctions.forms import AddListingForm
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 
-from .models import Listings, User, Bids, Comments
+from .models import Listings, User, Bids, Comments, Watchlist
 from django.contrib.auth.decorators import login_required
 
 def index(request):
@@ -117,3 +118,57 @@ def edit_listing(request, listing_id):
         "listing": listing
 
     })
+@login_required
+def add_to_watchlist(request, listing_id):
+    #saved_item_id = int(request.POST["saved_item"])
+    listing = get_object_or_404(Listings, pk=listing_id)
+    
+   # watchlist, created = Watchlist.objects.get_or_create(
+   #     owner=request.user
+    #)
+
+    watchlist = Watchlist.objects.create(
+        owner=request.user,
+        saved_item = listing.title
+    )
+
+    watchlist.save()
+
+    return render(request, "auctions/add_to_watchlist.html", {
+        "listing": listing,
+       "watchlist":watchlist.saved_item
+
+    })
+
+@login_required
+def remove_from_watchlist(request, listing_id):
+
+    
+    listing = Listings.objects.get(pk=listing_id)
+    to_delete = get_object_or_404(Watchlist, saved_item=listing)
+    to_delete.delete()
+    
+
+    
+    return render(request, "auctions/remove_from_watchlist.html", {
+        "listing": listing
+        })
+       
+@login_required
+def watchlist(request):
+    
+    watchlist = Watchlist.objects.all()
+    length = range(len(watchlist))
+    
+    new_list=[]
+    for i in length:
+        new_list.append(watchlist[i].saved_item)
+
+    
+    return render(request, "auctions/watchlist.html", {
+       "watchlist":new_list,
+       "len": length
+
+       
+        
+        })

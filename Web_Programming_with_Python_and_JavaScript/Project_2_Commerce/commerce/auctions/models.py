@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.core.validators import MinValueValidator
-
+from django.conf import settings
 
 class User(AbstractUser):
     pass
@@ -24,6 +24,7 @@ class Listings(models.Model):
 
     comment = models.CharField(max_length=124)
     new_bid = models.FloatField(validators=[MinValueValidator(0.01)])
+    
 
     def __str__(self):
         return f"{self.title}   :::   {self.category}   :::    {self.starting_bid}"
@@ -33,3 +34,12 @@ class Bids(models.Model):
 
 class Comments(models.Model):
     pass
+
+class Watchlist(models.Model):
+    
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=1)
+    saved_item = models.CharField(max_length=128, default=None)
+    
+
+    def __str__(self):
+        return f"{self.owner}   :::   {self.saved_item}"
