@@ -1,9 +1,24 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
+<script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js'></script>
+<script type='text/javascript'>
+    jQuery(document).ready(function($) {
+    $('*[data-href]').on('click', function() {
+        window.location = $(this).data("href");
+    });
+
+    });
+    $(function(){
+     $(".table").on("click", "tr[role=\"button\"]", function (e) {
+          window.location = $(this).data("href");
+     });
+});
+</script>
 <h2>Active Listings</h2>
 
-<table style="border: 1px solid black; text-align: center;">
+<table class="table table-hover" style="border: 1px solid black; text-align: center;">
+    <thead class="thead-dark">
     <tr style="border: 1px solid black; text-align: center;">
         <th style="width: 50px;">Nr</th>
         <th style="width: 100px;">Image</th>
@@ -12,9 +27,12 @@
         <th style="width: 100px;">Category</th>
         <th style="width: 50px;">Bid</th>
     </tr>
+    </thead>
     {% for listing in Listings %}
     
-    <tr style="border: 1px solid black; text-align: center;">
+    
+        
+        <tr role="button" style='cursor: pointer; cursor: hand;' data-href="https://google.com" style="border: 1px solid black; text-align: center;">
         <td>{{listing.pk}}</td>
         <!-- <td> <a href="{{ listing.image_url}}">{{listing.image_url|truncatechars:20}}</a></td> -->
         <td>
@@ -33,6 +51,10 @@
 
         <td>{{listing.starting_bid}}</td>
     </tr>
+
+    
+
     {% endfor %}
+
 </table>
 {% endblock %}
