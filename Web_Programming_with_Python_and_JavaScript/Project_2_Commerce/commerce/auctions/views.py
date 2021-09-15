@@ -6,10 +6,14 @@ from django.shortcuts import render
 from django.urls import reverse
 
 from .models import Listings, User, Bids, Comments
-
+from django.contrib.auth.decorators import login_required
 
 def index(request):
-    return render(request, "auctions/index.html", {"Listings": Listings.objects.all()})
+    return render(request, "auctions/index.html", {
+        "Listings": Listings.objects.all(),
+        "user": request.user
+        
+        })
 
 
 def login_view(request):
@@ -97,4 +101,19 @@ def add_listing(request):
 
         return render(request, 'auctions/add_listing.html', {'form': form})
     
+def view_listing(request, listing_id):
+    listing = Listings.objects.get(pk=listing_id)
 
+    return render(request, "auctions/view_listing.html", {
+        "listing": listing
+
+    })
+
+@login_required
+def edit_listing(request, listing_id):
+    listing = Listings.objects.get(pk=listing_id)
+
+    return render(request, "auctions/edit_listing.html", {
+        "listing": listing
+
+    })
