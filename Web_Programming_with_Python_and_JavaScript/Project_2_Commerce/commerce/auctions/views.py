@@ -129,7 +129,10 @@ def add_to_watchlist(request, listing_id):
 
     watchlist = Watchlist.objects.create(
         owner=request.user,
-        saved_item = listing.title
+        saved_item = listing.title,
+        cross_id=listing_id,
+        image_url=listing.image_url,
+        price=listing.starting_bid
     )
 
     watchlist.save()
@@ -159,16 +162,12 @@ def watchlist(request):
     
     watchlist = Watchlist.objects.all()
     length = range(len(watchlist))
-    
-    new_list=[]
-    for i in length:
-        new_list.append(watchlist[i].saved_item)
-
+     
     
     return render(request, "auctions/watchlist.html", {
-       "watchlist":new_list,
-       "len": length
-
+       "watchlist":watchlist,
        
-        
+       
+
+
         })

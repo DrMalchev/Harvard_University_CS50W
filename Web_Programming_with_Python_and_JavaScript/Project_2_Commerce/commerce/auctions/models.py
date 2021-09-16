@@ -39,7 +39,9 @@ class Watchlist(models.Model):
     
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=1)
     saved_item = models.CharField(max_length=128, default=None)
-    
+    cross_id = models.IntegerField()
+    image_url = models.URLField(max_length=124, default=None)
+    price = models.FloatField(default=None)
 
     def __str__(self):
-        return f"{self.owner}   :::   {self.saved_item}"
+        return f"Owner: {self.owner}, Item: {self.saved_item}, Item ID: {self.cross_id}, Price:{self.price} "
