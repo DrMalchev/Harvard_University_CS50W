@@ -2,6 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.core.validators import MinValueValidator
 from django.conf import settings
+import datetime
 
 class User(AbstractUser):
     pass
@@ -33,7 +34,13 @@ class Bids(models.Model):
     pass
 
 class Comments(models.Model):
-    pass
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=1)
+    comment = models.CharField( max_length=256, default=None)
+    time = models.DateField(blank=True, null=True,default=datetime.date.today)
+    comment_for_id = models.IntegerField(default=None)
+
+    def __str__(self):
+        return f"{self.owner}   :::   {self.comment}   :::    {self.time} :::    Listing ID - {self.comment_for_id}"
 
 class Watchlist(models.Model):
     

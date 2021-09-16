@@ -15,6 +15,7 @@ urlpatterns = [
     path("<int:listing_id>/watchlist", views.add_to_watchlist, name="add_to_watchlist"),
     path("<int:listing_id>/WLremoved", views.remove_from_watchlist, name="remove_from_watchlist"),
     path("watchlist", views.watchlist, name="watchlist"),
+    #path("<int:listing_id>/edit", views.comments, name="comments")
 
     
 ]#+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) \

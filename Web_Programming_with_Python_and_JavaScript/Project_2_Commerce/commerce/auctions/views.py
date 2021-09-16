@@ -1,5 +1,5 @@
 from django.contrib.auth.models import update_last_login
-from auctions.forms import AddListingForm
+from auctions.forms import AddCommentForm, AddListingForm
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
@@ -8,6 +8,9 @@ from django.urls import reverse
 
 from .models import Listings, User, Bids, Comments, Watchlist
 from django.contrib.auth.decorators import login_required
+from django.db.models import Count, Max
+from datetime import datetime
+from django.db import models
 
 def index(request):
     return render(request, "auctions/index.html", {
@@ -113,45 +116,110 @@ def view_listing(request, listing_id):
 @login_required
 def edit_listing(request, listing_id):
     listing = Listings.objects.get(pk=listing_id)
+    comment_form = AddCommentForm()
 
-    return render(request, "auctions/edit_listing.html", {
-        "listing": listing
+    
+    comment=Comments.objects.filter(comment_for_id=listing_id).all()
+    #comment.save()
+    
+    if request.method == 'POST':
+        form = AddCommentForm(request.POST)
+        if form.is_valid():
 
-    })
+            comment=Comments.objects.create(
+                comment=form.cleaned_data['comment'],
+                owner = request.user,
+                time = datetime.now().replace(microsecond=0),
+                comment_for_id=listing_id
+            )
+            comment.save()
+            comment=Comments.objects.filter(comment_for_id=listing_id).all()
+            
+                
+
+    all_id_list = list(Watchlist.objects.all().values_list('cross_id', flat=True)) 
+    
+    if listing_id not in all_id_list:
+
+        return render(request, "auctions/edit_listing.html", {
+        "listing": listing,
+        "comment_form": comment_form,
+        "comments": comment
+        
+        })
+    
+    else:
+        return render(request, "auctions/add_to_watchlist.html", {
+        "listing": listing,
+        "comment_form": comment_form,
+        "comments":comment
+        })
+
+    
 @login_required
 def add_to_watchlist(request, listing_id):
     #saved_item_id = int(request.POST["saved_item"])
     listing = get_object_or_404(Listings, pk=listing_id)
     
-   # watchlist, created = Watchlist.objects.get_or_create(
-   #     owner=request.user
-    #)
+    comment_form = AddCommentForm()
 
-    watchlist = Watchlist.objects.create(
-        owner=request.user,
-        saved_item = listing.title,
-        cross_id=listing_id,
-        image_url=listing.image_url,
-        price=listing.starting_bid
-    )
+    
+    comment=Comments.objects.filter(comment_for_id=listing_id).all()
+    #comment.save()
+    
+    if request.method == 'POST':
+        form = AddCommentForm(request.POST)
+        if form.is_valid():
 
-    watchlist.save()
+            comment=Comments.objects.create(
+                comment=form.cleaned_data['comment'],
+                owner = request.user,
+                time = datetime.now().replace(microsecond=0),
+                comment_for_id=listing_id
+            )
+            comment.save()
+            comment=Comments.objects.filter(comment_for_id=listing_id).all()
 
-    return render(request, "auctions/add_to_watchlist.html", {
+
+    all_id_list = list(Watchlist.objects.all().values_list('cross_id', flat=True)) 
+    
+    if listing_id not in all_id_list:
+
+        watchlist = Watchlist.objects.create(
+            owner=request.user,
+            saved_item = listing.title,
+            cross_id=listing_id,
+            image_url=listing.image_url,
+            price=listing.starting_bid
+            )
+
+        watchlist.save()
+    
+        return render(request, "auctions/add_to_watchlist.html", {
         "listing": listing,
-       "watchlist":watchlist.saved_item
+       "watchlist":watchlist.saved_item,
+       "check": all_id_list,
+       "comment_form": comment_form,
+        "comments": comment
 
-    })
+        })
+    else:
+        return render(request, "auctions/add_to_watchlist.html", {
+            "listing":listing,
+            "comment_form": comment_form,
+            "comments": comment
+            })
+    
+
+    
 
 @login_required
 def remove_from_watchlist(request, listing_id):
 
+    listing = get_object_or_404(Listings, pk=listing_id)
     
-    listing = Listings.objects.get(pk=listing_id)
-    to_delete = get_object_or_404(Watchlist, saved_item=listing)
-    to_delete.delete()
+    Watchlist.objects.filter(cross_id=listing_id).delete()
     
-
     
     return render(request, "auctions/remove_from_watchlist.html", {
         "listing": listing
@@ -166,8 +234,15 @@ def watchlist(request):
     
     return render(request, "auctions/watchlist.html", {
        "watchlist":watchlist,
-       
-       
-
-
         })
+
+""" @login_required
+def comments(request, listing_id):
+    listing = get_object_or_404(Listings, pk=listing_id)
+    comment_form = AddCommentForm()
+    comments= list(Comments.objects.all().values_list('comments', flat=True)) 
+    return render(request, "auctions/edit_listing.html", {
+        "listing": listing,
+        "comment_form": comment_form,
+        "comments":comments
+        }) """
