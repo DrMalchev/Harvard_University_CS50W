@@ -107,9 +107,11 @@ def add_listing(request):
     
 def view_listing(request, listing_id):
     listing = Listings.objects.get(pk=listing_id)
+    comment=Comments.objects.filter(comment_for_id=listing_id).all()
 
     return render(request, "auctions/view_listing.html", {
-        "listing": listing
+        "listing": listing,
+        "comments": comment
 
     })
 
