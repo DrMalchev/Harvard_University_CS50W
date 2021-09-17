@@ -31,7 +31,11 @@ class Listings(models.Model):
         return f"{self.title}   :::   {self.category}   :::    {self.starting_bid}"
 
 class Bids(models.Model):
-    pass
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=1)
+    desired_bid = models.FloatField(validators=[MinValueValidator(0.01)], default=None)
+
+    def __str__(self):
+        return f"{self.owner}   :::    {self.desired_bid}"
 
 class Comments(models.Model):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=1)

@@ -18,4 +18,8 @@ class AddListingForm(forms.Form):
     starting_bid = forms.FloatField(min_value=0.01, required=True)
 
 class AddCommentForm(forms.Form):
-    comment = forms.CharField(label='Write Your comment here...', max_length=256, required=True, widget=forms.Textarea(attrs={'cols': 50, 'rows': 2}))
+    comment = forms.CharField(label='Write Your comment here...', max_length=256, required=True, 
+    widget=forms.Textarea(attrs={'cols': 50, 'rows': 2}))
+
+class AddBidForm(forms.Form):
+    form_bid = forms.FloatField(min_value=0.01, required=False, label=None)

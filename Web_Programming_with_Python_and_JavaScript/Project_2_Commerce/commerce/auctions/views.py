@@ -1,5 +1,5 @@
 from django.contrib.auth.models import update_last_login
-from auctions.forms import AddCommentForm, AddListingForm
+from auctions.forms import AddBidForm, AddCommentForm, AddListingForm
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
@@ -119,44 +119,103 @@ def view_listing(request, listing_id):
 def edit_listing(request, listing_id):
     listing = Listings.objects.get(pk=listing_id)
     comment_form = AddCommentForm()
-
+    bid_form = AddBidForm()
     
+    bid_message = "Add your bid here."
+
+    new_bid=Bids.objects.all()
     comment=Comments.objects.filter(comment_for_id=listing_id).all()
     #comment.save()
     
-    if request.method == 'POST':
-        form = AddCommentForm(request.POST)
-        if form.is_valid():
+    if request.method == 'POST' :
 
-            comment=Comments.objects.create(
+        postparams = request.readline()
+        #parmod = str(request.readline())
+
+        if 'comment' in str(postparams):
+            form = AddCommentForm(request.POST)
+            if form.is_valid():
+
+                comment=Comments.objects.create(
                 comment=form.cleaned_data['comment'],
                 owner = request.user,
                 time = datetime.now().replace(microsecond=0),
                 comment_for_id=listing_id
-            )
-            comment.save()
-            comment=Comments.objects.filter(comment_for_id=listing_id).all()
-            
-                
+                )
+                comment.save()
+                comment=Comments.objects.filter(comment_for_id=listing_id).all()
 
-    all_id_list = list(Watchlist.objects.all().values_list('cross_id', flat=True)) 
-    
-    if listing_id not in all_id_list:
+            all_id_list = list(Watchlist.objects.all().values_list('cross_id', flat=True)) 
 
-        return render(request, "auctions/edit_listing.html", {
-        "listing": listing,
-        "comment_form": comment_form,
-        "comments": comment
+            if listing_id not in all_id_list:
+
+                return render(request, "auctions/edit_listing.html", {
+                "listing": listing,
+                "comment_form": comment_form,
+                "comments": comment,
+                "bid_form": bid_form,
+                "bid_message": bid_message[-1],
+                "postparams": postparams
+                })
         
-        })
+        
+        
     
-    else:
-        return render(request, "auctions/add_to_watchlist.html", {
+            else:
+                return render(request, "auctions/add_to_watchlist.html", {
+                "listing": listing,
+                "comment_form": comment_form,
+                "comments":comment,
+                "bid_form": bid_form,
+                "bid_message": bid_message[-1],
+                "postparams": postparams
+                })
+
+
+        else:
+            bid_form = AddBidForm(request.POST)
+            all_bids_list = list(Bids.objects.all().values_list('desired_bid', flat=True))  
+            all_bids_list = [float(i) for i in all_bids_list ]
+            if bid_form.is_valid() and bid_form.cleaned_data['form_bid']:
+                if bid_form.cleaned_data['form_bid'] > listing.starting_bid:
+                    new_bid = Bids.objects.create(
+                    desired_bid=bid_form.cleaned_data['form_bid'],
+                    owner = request.user
+                    )
+                    new_bid.save()
+                    listing.starting_bid = new_bid.desired_bid  
+                    listing.save()
+                    bid_message = "Bid accepted"
+                else:
+                    bid_message = "Bid not accepted"
+                    #listing.starting_bid=999
+                    listing.save()
+                
+        
+        
+            return render(request, "auctions/edit_listing.html", {
+            "listing": listing,
+            "comment_form": comment_form,
+            "comments": comment,
+            "bid_form": bid_form,
+            "bid_message": bid_message,
+            "all_bids":all_bids_list,
+            "new_bid": new_bid,
+            "postparams":postparams
+            })
+        
+    return render(request, "auctions/edit_listing.html", {
         "listing": listing,
         "comment_form": comment_form,
-        "comments":comment
+        "comments": comment,
+        "bid_form": bid_form,
+        "bid_message": bid_message
         })
+        
 
+    
+    
+    
     
 @login_required
 def add_to_watchlist(request, listing_id):
