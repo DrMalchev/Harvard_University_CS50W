@@ -11,6 +11,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Max
 from datetime import datetime
 from django.db import models
+from collections import defaultdict
 
 def index(request):
 
@@ -311,10 +312,13 @@ def categories(request):
        "categories": categories
         })
 
-def cat_display(request):
+def cat_display(request, cat_display):
+   
     
+
     return render(request, "auctions/cat_display.html", {
-        "Listings": Listings.objects.filter(active=True).all(),
+        "Listings": Listings.objects.filter(active=True, category=cat_display).all(),
         "user": request.user,
-        "we_have_winner": False
+        "we_have_winner": False,
+        "category":cat_display
         })

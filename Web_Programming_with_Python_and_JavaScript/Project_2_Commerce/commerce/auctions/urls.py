@@ -17,7 +17,7 @@ urlpatterns = [
     path("watchlist", views.watchlist, name="watchlist"),
     path("<int:listing_id>/close", views.close, name="close"),
     path("categories", views.categories, name="categories"),
-    path("cat_display", views.cat_display, name="cat_display")
+    path("cat_display/<slug:cat_display>", views.cat_display, name="cat_display")
     #path("<int:listing_id>/edit", views.comments, name="comments")
 
     
