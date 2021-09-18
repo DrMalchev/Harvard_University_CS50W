@@ -300,3 +300,21 @@ def close(request, listing_id):
     
 
     return HttpResponseRedirect(reverse("index"))
+
+def categories(request):
+    
+    categories_temp = list(Listings.objects.filter(active=True).all().values_list('category', flat=True)) 
+
+    categories = list(dict.fromkeys(categories_temp))
+
+    return render(request, "auctions/categories.html", {
+       "categories": categories
+        })
+
+def cat_display(request):
+    
+    return render(request, "auctions/cat_display.html", {
+        "Listings": Listings.objects.filter(active=True).all(),
+        "user": request.user,
+        "we_have_winner": False
+        })
