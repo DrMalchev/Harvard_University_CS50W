@@ -15,7 +15,20 @@
         });
     });
 </script>
-<h2>Active Listings</h2>
+<table>
+    <td>
+        <h2>Active Listings</h2>
+    </td>
+    <td style="width: 200px;"></td>
+    <td>
+       {% if we_have_winner == True %}
+    <p style="font-size: 28px; color: red;">Congratulations! You won <a href="{{won_item_id}}/edit">{{won_item}}</a>!</p>
+{% endif %} 
+    </td>
+</table>
+
+
+
 
 <table class="table table-hover" style="border: 1px solid black; text-align: center;">
     <thead class="thead-dark">

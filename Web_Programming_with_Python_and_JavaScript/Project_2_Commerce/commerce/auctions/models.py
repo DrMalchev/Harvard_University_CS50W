@@ -22,17 +22,20 @@ class Listings(models.Model):
     starting_bid = models.FloatField(validators=[MinValueValidator(0.01)])
     image_url = models.URLField(max_length=124)
     category = models.CharField(max_length=64, choices=categories)
-
+    active = models.BooleanField(default=True)
     comment = models.CharField(max_length=124)
     new_bid = models.FloatField(validators=[MinValueValidator(0.01)])
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=1)
     
 
     def __str__(self):
-        return f"{self.title}   :::   {self.category}   :::    {self.starting_bid}"
+        return f"Owner: {self.owner}/ Item: {self.title}/ Cat: {self.category}/ Price: {self.starting_bid}"
 
 class Bids(models.Model):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=1)
     desired_bid = models.FloatField(validators=[MinValueValidator(0.01)], default=None)
+    winner_id= models.IntegerField(default=0)
+    won_item_id = models.IntegerField(default=0)
 
     def __str__(self):
         return f"{self.owner}   :::    {self.desired_bid}"
@@ -44,7 +47,7 @@ class Comments(models.Model):
     comment_for_id = models.IntegerField(default=None)
 
     def __str__(self):
-        return f"{self.owner}   :::   {self.comment}   :::    {self.time} :::    Listing ID - {self.comment_for_id}"
+        return f"Comment by: {self.owner}/ Comment: {self.comment}/ Date: {self.time}/ Listing ID:{self.comment_for_id}"
 
 class Watchlist(models.Model):
     
