@@ -108,7 +108,8 @@ def add_listing(request):
             starting_bid = form.cleaned_data['starting_bid'],
             new_bid = 0.01,
             comment = "dummy",
-            owner=request.user
+            owner=request.user,
+            active=True
             )
 
             listing.save()
