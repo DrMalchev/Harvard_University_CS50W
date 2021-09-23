@@ -12,12 +12,14 @@
                     padding: 20px;
                     margin-bottom: 10px;
                 }
+                
                 75% {
                     opacity: 0;
                     height: 100%;
                     line-height: 100%;
                     padding: 20px;
                     margin-bottom: 10px;
+                    
                 }
                 100% {
                     opacity: 0;
@@ -29,6 +31,7 @@
             }
 
             .hide  {
+                
                 float: right;
             }
 
@@ -66,13 +69,19 @@
             };
 
             // If hide button is clicked, delete the post
-            document.addEventListener('click', event => {
+            document.addEventListener('click', function(event) {
                 const element = event.target;
+                // I want to know if element is the hide button or the user clicked elsewhere
                 if (element.className === 'hide') {
+                    // each hide button has a class hide
+                    //element.remove();
+                    // removes just the element -> the hide button
+                    //element.parentElement.remove();
                     element.parentElement.style.animationPlayState = 'running';
-                    element.parentElement.addEventListener('animationend', () =>  {
+                    element.addEventListener('animationend', function() {
                         element.parentElement.remove();
-                    });
+                    })
+
                 }
             });
 
