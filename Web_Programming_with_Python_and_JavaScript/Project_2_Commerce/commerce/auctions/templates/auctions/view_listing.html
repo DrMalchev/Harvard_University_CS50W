@@ -1,0 +1,38 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+
+<h2>{{listing.title}}</h2>
+
+<div>{{listing.description}}</div>
+<br>
+<div>
+    {% load static %} 
+    {% if not listing.image_url %}
+        <img style="height: 50px;" src="{% static 'images/nopic.png' %}" alt="no image">
+    {% elif listing.image_url %}
+        <img style="display: block; height: 400px;" src="{{listing.image_url}}" alt="image">
+    {% endif %}
+
+</div>
+<div>
+    Category: {{listing.category}}
+</div>  
+<div>
+    Price: {{listing.starting_bid}}
+</div>  
+<hr>
+<h3>Comments:</h3>
+<div>
+    <p>Please <a href="{% url 'register' %}">register</a>  or <a href="{% url 'login' %}">login</a>  to add a comment.</p>
+    
+
+<div>
+{% for comment in comments%}
+{{comment}}
+
+<br>
+{%endfor%}
+</div>
+
+{% endblock %}

@@ -1,0 +1,111 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+
+  <table class="table">
+    <thead class="thead-light">
+      <tr>
+        
+        <th scope="col"><h2>{{listing.title}}</h2></th>
+        <th scope="col">
+            
+         
+            <table style="border: none;">
+                <td>Price: {{listing.starting_bid}}</td>
+                {% if is_in_watchlist == True %}
+                <td> <a style="background: lightsalmon; padding: 5px; border-radius: 10px;" href="WLremoved">Remove from Watchlist</a> </td>
+                {% else %}
+                <td> <a style="background: lightgreen; padding: 5px; border-radius: 10px;" href="watchlist">Add to Watchlist</a> </td>
+                {% endif %}
+                
+                {% if is_owner == True %}
+                <td> <a style="background: orange; padding: 5px; border-radius: 10px;" href="close">Close Listing</a> </td>
+                {% endif %}
+                
+            </table>
+        
+        
+        </th>
+        
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+       
+        <td>
+            {% load static %} 
+            {% if not listing.image_url %}
+                <img style="height: 50px;" src="{% static 'images/nopic.png' %}" alt="no image">
+            {% elif listing.image_url %}
+                <img style="display: block; height: 400px;" src="{{listing.image_url}}" alt="image">
+            {% endif %}
+        
+
+        </td>
+        <td>
+            Description: {{listing.description}}
+            <br>
+            Category: {{listing.category}}
+            <hr>
+
+
+
+            <form  action="edit" method="post">
+              {% csrf_token %}
+              <table>
+                  
+                  <tr>
+                      Add comment: 
+                      <br>
+                      {{comment_form.comment}}
+                  </tr>
+                  
+              </table>
+              
+              <br>
+              
+              <input name="com" type="submit" value="Add Comment">
+          </form>
+
+          <hr>
+          <form  action="edit" method="post">
+            {% csrf_token %}
+            <table>
+                
+                <tr>
+                    {{bid_message}}
+                    <br>
+                    {{bid_form.form_bid}}
+                </tr>
+                
+            </table>
+            
+            <br>
+            
+            <input name="bid" type="submit" value="Add Bid">
+        </form>
+
+        </td>
+        
+      </tr>
+      
+    </tbody>
+  </table>
+
+
+
+
+<hr>
+<h3>Comments:</h3>
+
+<div>
+{% for comment in comments%}
+{{comment}}
+
+<br>
+{%endfor%}
+
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+
+<h2>All listings in the category <span style="color: orange; font-weight: bold;">{{category}}</span></h2>
+
+<table>
+    <td>
+        
+    </td>
+    <td style="width: 200px;"></td>
+    <td>
+       {% if we_have_winner == True %}
+    <p style="font-size: 28px; color: red;">Congratulations! You won <a href="{{won_item_id}}/edit">{{won_item}}</a>!</p>
+{% endif %} 
+    </td>
+</table>
+
+
+
+
+<table class="table table-hover" style="border: 1px solid black; text-align: center;">
+    <thead class="thead-dark">
+        <tr style="border: 1px solid black; text-align: center;">
+            <th style="width: 50px;">Nr</th>
+            <th style="width: 100px;">Image</th>
+            <th style="width: 100px;">Title</th>
+            <th style="width: 200px;">Description</th>
+            <th style="width: 100px;">Category</th>
+            <th style="width: 50px;">Price</th>
+        </tr>
+    </thead>
+    {% for listing in Listings %}
+
+
+    {% if user.is_authenticated %}
+    
+        <tr onclick="window.location = '/{{listing.pk}}/edit'" role="button" style='cursor: pointer; cursor: hand;'
+            style="border: 1px solid black; text-align: center;">
+    {% elif not user.is_authenticated %}
+    
+        <tr onclick="window.location = '/{{listing.pk}}'" role="button" style='cursor: pointer; cursor: hand;' 
+            style="border: 1px solid black; text-align: center;">
+    {% endif %}
+
+    <td>{{listing.pk}}</td>
+    <!-- <td> <a href="{{ listing.image_url}}">{{listing.image_url|truncatechars:20}}</a></td> -->
+    <td>
+        {% load static %}
+        {% if not listing.image_url %}
+        <img style="height: 50px;" src="{% static 'images/nopic.png' %}" alt="no image">
+        {% elif listing.image_url %}
+        <img style="display: block; height: 50px; margin: auto;" src="{{listing.image_url}}" alt="image">
+        {% endif %}
+
+    </td>
+    <td>{{listing.title}}</td>
+    <td>{{listing.description}}</td>
+
+    <td>{{listing.category}}</td>
+
+    <td>{{listing.starting_bid}}</td>
+    </tr>
+
+
+
+    {% endfor %}
+
+</table>
+
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+<script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js'></script>
+<script type='text/javascript'>
+    jQuery(document).ready(function ($) {
+        $('*[data-href]').on('click', function () {
+            window.location = $(this).data("href");
+        });
+
+    });
+    $(function () {
+        $(".table").on("click", "tr[role=\"button\"]", function (e) {
+            window.location = $(this).data("href");
+        });
+    });
+</script>
+
+<table  class="table table-hover" style="text-align: center; background-color: lightgray; border: white 10px solid;">
+    {% for cat in categories %}
+    
+    <tr style="border: 20px solid white;">
+        <td class="table-hover">
+            <p role="button" style=' cursor: pointer; cursor: hand;' data-href="cat_display/{{cat}}">{{cat}}</p>
+        </td>
+        
+        
+    </tr>
+    {% endfor %}
+</table>
+
+
+
+{% endblock %}
