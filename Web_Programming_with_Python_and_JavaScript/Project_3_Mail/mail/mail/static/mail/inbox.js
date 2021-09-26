@@ -43,6 +43,31 @@ function load_mailbox(mailbox) {
   // Show the mailbox name
   document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
   name=mailbox;
+
+  let emails;
+  fetch(`/emails/${mailbox}`)
+    .then(response => response.text())
+    .then(text => { 
+      console.log(JSON.parse(text));
+      JSON.parse(text).forEach(element => {
+        console.log(element)
+      });
+    })
+    .catch(err => console.error(err));  
+
+   //emails.forEach(element => console.log(element));
+
+  
+
+
+  /* emails.forEach (element => {
+    var elemDiv = document.createElement('div');
+    elemDiv.innerHTML=element;
+    elemDiv.style.cssText = 'border:1px solid black; max-width: 720px; width: 100%; padding-right: 15px; padding-left: 15px; margin-right: auto; margin-left: auto;';
+    document.body.appendChild(elemDiv);
+    }); */
+
+
 }
 
 function send_email() {
@@ -53,7 +78,8 @@ function send_email() {
       recipients: document.querySelector('#compose-recipients').value,
       subject: document.querySelector('#compose-subject').value,
       body: document.querySelector('#compose-body').value
-    })
+    }),
+    headers: {'Content-type': 'application/json; charset=UTF-8'}
   })
     .then(response => response.json())
     .then(result => {
@@ -63,7 +89,8 @@ function send_email() {
       //window.stop(); 
       
       
-    });
+    })
+    .catch(err => console.error(err));
       let name = 'sent';
       load_mailbox('sent');
       //alert("Email sent successfully!");
