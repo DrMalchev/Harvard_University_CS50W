@@ -1,35 +1,21 @@
+
 document.addEventListener('DOMContentLoaded', function () {
-  let name;
+  
   // Use buttons to toggle between views
-  document.querySelector('#inbox').addEventListener('click', () => {
-    name='inbox';
-    load_mailbox(name); 
-    });
-
-  document.querySelector('#sent').addEventListener('click', () => {
-    name='sent';
-    load_mailbox(name);
+  document.querySelector('#inbox').addEventListener('click', () => load_mailbox('inbox')); 
+  document.querySelector('#sent').addEventListener('click', () => load_mailbox('sent'));
+  document.querySelector('#archived').addEventListener('click', () => load_mailbox('archive'));
+  document.querySelector('#compose').addEventListener('click',  compose_email);
   
-
-});
-  document.querySelector('#archived').addEventListener('click', () => {
-    name='archive';
-    load_mailbox('archive')
-  });
-
-  document.querySelector('#compose').addEventListener('click', () => {
-    name='archive';
-    compose_email();
-  });
-
   // By default, load the inbox
-
   
-  load_mailbox(name);
+  if(name == 'inbox')  {load_mailbox('inbox');}
+  else {load_mailbox(name);}
   
-
-
+  
 });
+
+
 
 function compose_email() {
 
@@ -44,7 +30,7 @@ function compose_email() {
 
   //fourth input field is the submit button
   document.getElementsByTagName("INPUT")[3].addEventListener('click', send_email);
-
+  return false;
 }
 
 function load_mailbox(mailbox) {
@@ -56,7 +42,7 @@ function load_mailbox(mailbox) {
   
   // Show the mailbox name
   document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
-    
+  name=mailbox;
 }
 
 function send_email() {
@@ -72,14 +58,15 @@ function send_email() {
     .then(response => response.json())
     .then(result => {
       console.log("Email status ckeck: ", result);
-      load_mailbox('sent');
-      alert("Email sent successfully!");
+      
+      //alert("Email sent successfully!");
+      //window.stop(); 
       
       
     });
+      let name = 'sent';
+      load_mailbox('sent');
+      //alert("Email sent successfully!");
+      
   
-  //load_mailbox('sent');
-
-  //alert("test check")
-  //return false;
 }
