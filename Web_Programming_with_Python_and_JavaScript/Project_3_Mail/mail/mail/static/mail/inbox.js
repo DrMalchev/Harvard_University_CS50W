@@ -50,16 +50,21 @@ function load_mailbox(mailbox) {
     .then(text => { 
       console.log(JSON.parse(text));
       JSON.parse(text).forEach(element => {
+        
         console.log(element)
+
+        let myDiv = document.createElement('div');
+        myDiv.innerHTML=`<span style="margin-right:40px; font-weight:bold;">${element.sender} </span> <span>${element.subject}</span>  <span style="float:right;">${element.timestamp}</span>` ;
+        myDiv.style.cssText = 
+        document.body.appendChild(myDiv);
+        
+        if (element.read===true){myDiv.style.cssText ='border:1px solid black; max-width: 1024px; ; padding-right: 15px; padding-left: 15px; margin-left: 5%; margin-right:10%;background: lightgrey';}
+        else {myDiv.style.cssText ='border:1px solid black; max-width: 1024px; ; padding-right: 15px; padding-left: 15px; margin-left: 5%; margin-right:10%';}
       });
     })
     .catch(err => console.error(err));  
 
-   //emails.forEach(element => console.log(element));
-
-  
-
-
+   
   /* emails.forEach (element => {
     var elemDiv = document.createElement('div');
     elemDiv.innerHTML=element;
