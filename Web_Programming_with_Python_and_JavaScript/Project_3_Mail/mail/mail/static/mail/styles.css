@@ -8,3 +8,25 @@ div.mailboxDiv:hover {
    
 }
 
+div.emailDiv {
+    font-weight: bold;
+    max-width: 1024px; ; 
+    padding: 5px 15px 5px 15px; 
+    margin-left: 5%; 
+    margin-right:10%
+}
+
+div.emailBodyDiv {
+    
+    max-width: 1024px; ; 
+    padding: 5px 15px 5px 15px; 
+    margin-left: 5%; 
+    margin-right:10%
+}
+
+button.replyButton {
+    padding: 5px; 
+    margin-left: 6.5%; 
+    margin-top: 10px;
+    
+}

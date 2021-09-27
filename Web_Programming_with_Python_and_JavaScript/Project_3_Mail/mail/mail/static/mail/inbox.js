@@ -22,7 +22,7 @@ function compose_email() {
   // Show compose view and hide other views
   document.querySelector('#emails-view').style.display = 'none';
   document.querySelector('#compose-view').style.display = 'block';
-
+  document.querySelector('#show_email').style.display = 'none';
   // Clear out composition fields
   document.querySelector('#compose-recipients').value = '';
   document.querySelector('#compose-subject').value = '';
@@ -44,6 +44,7 @@ function load_mailbox(mailbox) {
   // Show the mailbox and hide other views
   document.querySelector('#emails-view').style.display = 'block';
   document.querySelector('#compose-view').style.display = 'none';
+  document.querySelector('#show_email').style.display = 'none';
   
   
   // Show the mailbox name
@@ -116,5 +117,67 @@ function send_email() {
 function load_email(element_id){
 
   console.log(`Yuhuuuuuu ${element_id}`)
+  // Hide compose view emails view
+  // show show email view
+  document.querySelector('#emails-view').style.display = 'none';
+  document.querySelector('#compose-view').style.display = 'none';
+  document.querySelector('#show_email').style.display = 'block';
+  document.querySelectorAll('.mailboxDiv').forEach(div => {div.style.display = 'none';})
+  //test how getElementById works
+  //document.getElementById('show_email').appendChild(document.createElement('hr'))
+
+  fetch(`/emails/${element_id}`)
+    .then(response => response.json())
+    .then(text => {
+      //console.log(text.sender);
+      let myDivSender = document.createElement('div');
+      myDivSender.className = "emailDiv";
+      myDivSender.innerHTML=`From: ${text.sender}`;
+      document.getElementById('show_email').appendChild(myDivSender);
+
+      let myDivRecipient = document.createElement('div');
+      myDivRecipient.className = "emailDiv";
+      myDivRecipient.innerHTML=`To: ${text.recipients}`;
+      document.getElementById('show_email').appendChild(myDivRecipient);
+
+      let myDivSubject = document.createElement('div');
+      myDivSubject.className = "emailDiv";
+      myDivSubject.innerHTML=`Subject: ${text.subject}`;
+      document.getElementById('show_email').appendChild(myDivSubject);
+
+      let myDivTime = document.createElement('div');
+      myDivTime.className = "emailDiv";
+      myDivTime.innerHTML=`Timestamp: ${text.timestamp}`;
+      document.getElementById('show_email').appendChild(myDivTime);
+
+      let myDivButton = document.createElement('button');
+      myDivButton.className = "replyButton";
+      myDivButton.innerHTML='Reply';
+      document.getElementById('show_email').appendChild(myDivButton);
+
+      let myHr = document.createElement('hr');
+      myHr.className = "myHr";
+      document.getElementById('show_email').appendChild(myHr);
+
+      let myDivBody = document.createElement('div');
+      myDivBody.className = "emailBodyDiv";
+      myDivBody.innerHTML=`Timestamp: ${text.body}`;
+      document.getElementById('show_email').appendChild(myDivBody);
+  });  
+    
+        
+        
+
+        
+        
+         
+        
+        
+        
+        
+        
+        
+      
+   // })
 
 }
