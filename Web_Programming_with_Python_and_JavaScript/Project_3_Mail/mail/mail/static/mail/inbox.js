@@ -65,10 +65,14 @@ function load_mailbox(mailbox) {
 
         let myDiv = document.createElement('div');
         myDiv.className = "mailboxDiv";
+        myDiv.id = `id${element.id}`;
+        //myDiv.onmouseover = function() {};
+        
         myDiv.innerHTML=`<span style="margin-right:40px; font-weight:bold;">${element.sender} </span> <span>${element.subject}</span>  <span style="float:right;">${element.timestamp}</span>` ;
         
         document.body.appendChild(myDiv);
-        
+        document.querySelector(`#id${element.id}`).addEventListener('click', () => load_email(element.id));
+        console.log(element.id);
         
         if (element.read===true){myDiv.style.cssText ='border:1px solid black; max-width: 1024px; ; padding: 10px 15px 10px 15px; margin-left: 5%; margin-right:10%;background: lightgrey';}
         else {myDiv.style.cssText ='border:1px solid black; max-width: 1024px; ; padding: 10px 15px 10px 15px; margin-left: 5%; margin-right:10%';}
@@ -106,4 +110,11 @@ function send_email() {
       //alert("Email sent successfully!");
       
   
+}
+
+
+function load_email(element_id){
+
+  console.log(`Yuhuuuuuu ${element_id}`)
+
 }

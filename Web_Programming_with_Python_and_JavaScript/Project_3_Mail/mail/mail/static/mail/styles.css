@@ -2,5 +2,9 @@ textarea {
     min-height: 400px;
 }
 
-
+div.mailboxDiv:hover {
+    color:red;
+    cursor: pointer;
+   
+}
 
