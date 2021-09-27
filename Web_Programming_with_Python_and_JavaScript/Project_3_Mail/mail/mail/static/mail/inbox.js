@@ -30,6 +30,12 @@ function compose_email() {
 
   //fourth input field is the submit button
   document.getElementsByTagName("INPUT")[3].addEventListener('click', send_email);
+
+  const elements = document.getElementsByClassName('mailboxDiv');
+    while(elements.length > 0){
+        elements[0].parentNode.removeChild(elements[0]);
+    }
+
   return false;
 }
 
@@ -44,33 +50,32 @@ function load_mailbox(mailbox) {
   document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
   name=mailbox;
 
-  let emails;
+  const elements = document.getElementsByClassName('mailboxDiv');
+    while(elements.length > 0){
+        elements[0].parentNode.removeChild(elements[0]);
+    }
+  //get data from mailbox
   fetch(`/emails/${mailbox}`)
     .then(response => response.text())
     .then(text => { 
       console.log(JSON.parse(text));
       JSON.parse(text).forEach(element => {
         
-        console.log(element)
+        console.log(element);
 
         let myDiv = document.createElement('div');
+        myDiv.className = "mailboxDiv";
         myDiv.innerHTML=`<span style="margin-right:40px; font-weight:bold;">${element.sender} </span> <span>${element.subject}</span>  <span style="float:right;">${element.timestamp}</span>` ;
-        myDiv.style.cssText = 
+        
         document.body.appendChild(myDiv);
         
-        if (element.read===true){myDiv.style.cssText ='border:1px solid black; max-width: 1024px; ; padding-right: 15px; padding-left: 15px; margin-left: 5%; margin-right:10%;background: lightgrey';}
-        else {myDiv.style.cssText ='border:1px solid black; max-width: 1024px; ; padding-right: 15px; padding-left: 15px; margin-left: 5%; margin-right:10%';}
+        
+        if (element.read===true){myDiv.style.cssText ='border:1px solid black; max-width: 1024px; ; padding: 10px 15px 10px 15px; margin-left: 5%; margin-right:10%;background: lightgrey';}
+        else {myDiv.style.cssText ='border:1px solid black; max-width: 1024px; ; padding: 10px 15px 10px 15px; margin-left: 5%; margin-right:10%';}
       });
     })
     .catch(err => console.error(err));  
 
-   
-  /* emails.forEach (element => {
-    var elemDiv = document.createElement('div');
-    elemDiv.innerHTML=element;
-    elemDiv.style.cssText = 'border:1px solid black; max-width: 720px; width: 100%; padding-right: 15px; padding-left: 15px; margin-right: auto; margin-left: auto;';
-    document.body.appendChild(elemDiv);
-    }); */
 
 
 }
