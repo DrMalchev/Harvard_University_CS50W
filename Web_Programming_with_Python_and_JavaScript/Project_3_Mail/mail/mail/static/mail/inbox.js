@@ -117,9 +117,14 @@ function send_email() {
 
 
 function load_email(element_id){
-
+  // email is clicked so mark it as read (grey background)
   document.getElementById('show_email').innerHTML = "";
-  
+  fetch (`/emails/${element_id}`, {
+    method: 'PUT',
+    body: JSON.stringify({ read: true }),
+    headers: {'Content-type': 'application/json; charset=UTF-8'}
+
+  })
 
   console.log(`Yuhuuuuuu ${element_id}`)
   // Hide compose view emails view
