@@ -30,3 +30,13 @@ button.replyButton {
     margin-top: 10px;
     
 }
+button.archiveButton {
+    padding: 5px; 
+    margin-left: 1%; 
+    margin-top: 10px;
+    
+}
+
+button:hover {
+    background: darkgray;
+}
