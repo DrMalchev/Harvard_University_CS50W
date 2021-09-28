@@ -55,6 +55,8 @@ function load_mailbox(mailbox) {
     while(elements.length > 0){
         elements[0].parentNode.removeChild(elements[0]);
     }
+  
+  
   //get data from mailbox
   fetch(`/emails/${mailbox}`)
     .then(response => response.text())
@@ -115,6 +117,9 @@ function send_email() {
 
 
 function load_email(element_id){
+
+  document.getElementById('show_email').innerHTML = "";
+  
 
   console.log(`Yuhuuuuuu ${element_id}`)
   // Hide compose view emails view
