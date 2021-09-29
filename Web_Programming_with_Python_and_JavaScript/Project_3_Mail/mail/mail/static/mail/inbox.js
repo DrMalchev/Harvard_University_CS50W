@@ -40,6 +40,7 @@ function compose_email() {
 }
 
 function load_mailbox(mailbox) {
+  
 
   // Show the mailbox and hide other views
   document.querySelector('#emails-view').style.display = 'block';
@@ -83,7 +84,7 @@ function load_mailbox(mailbox) {
     })
     .catch(err => console.error(err));
 
-
+    
 
 }
 
@@ -227,7 +228,10 @@ function archive_email(element_id) {
 
     })
   
-
+//load_mailbox('inbox');
+load_mailbox('inbox');
+location.reload();
+return false;
 }
 
 function reply_email(element_id) {
