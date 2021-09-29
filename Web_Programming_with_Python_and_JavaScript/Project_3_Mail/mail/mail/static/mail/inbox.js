@@ -181,13 +181,13 @@ function load_email(element_id, mailbox) {
 
       let myDivBody = document.createElement('div');
       myDivBody.className = "emailBodyDiv";
-      myDivBody.innerHTML = `Timestamp: ${text.body}`;
+      myDivBody.innerHTML = `${text.body}`;
       document.getElementById('show_email').appendChild(myDivBody);
 
       if (text.archived===true) {document.querySelector('#aButton').innerHTML="Unarchive";}
       else {document.querySelector('#aButton').innerHTML="Archive";}
       document.querySelector('#aButton').addEventListener('click', () => archive_email(element_id));
-      document.querySelector('#rButton').addEventListener('click', () => reply_email(element_id));
+      document.querySelector('#rButton').addEventListener('click', () => reply_email(element_id, text.sender, text.subject, text.timestamp, text.body));
     });  //fetch close brackets
 
 
@@ -201,8 +201,8 @@ function archive_email(element_id) {
   .then(response => response.json())
   .then(result => {
       console.log("Archived: ", result.archived);
-      if (result.archived===false) {
-        console.log("Archive id: " + element_id);
+      if (result.archived==false) {
+        console.log("Is it archived: " + result.archived);
         fetch(`/emails/${element_id}`, {
           method: 'PUT',
           body: JSON.stringify({ archived: true }),
@@ -210,10 +210,10 @@ function archive_email(element_id) {
       
         })
         document.querySelector('#aButton').innerHTML="Unarchive";
-        }//eundif
+        }//eund if
       else {
         
-        console.log("Archive id: " + element_id);
+        console.log("Is it archived: " + result.archived);
         fetch(`/emails/${element_id}`, {
           method: 'PUT',
           body: JSON.stringify({ archived: false }),
@@ -221,22 +221,36 @@ function archive_email(element_id) {
       
         })
         document.querySelector('#aButton').innerHTML="Archive";
-      }
-      //alert("Email sent successfully!");
-      //window.stop(); 
+      }//end else 
 
 
-    })
+    })//end then
   
-//load_mailbox('inbox');
+
 load_mailbox('inbox');
 location.reload();
 return false;
 }
 
-function reply_email(element_id) {
+function reply_email(element_id, recipient, subject, timestamp, textBody) {
   
   console.log("Reply id: " + element_id);
+  compose_email();
 
+  document.querySelector('#compose-recipients').value = recipient;
+  let new_subject="";
+  if (subject.startsWith("RE:") == false){
+    new_subject = 'RE: ' + subject;
+  }
+  else {
+    new_subject = subject;
+  }
+
+  document.querySelector('#compose-subject').value = new_subject;
+
+  let new_body = "";
+  new_body = `On ${timestamp} ${recipient} wrote: \n${textBody}`
+
+  document.querySelector('#compose-body').value = new_body;
 
 }
