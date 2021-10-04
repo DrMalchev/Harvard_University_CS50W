@@ -4,11 +4,13 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 
-from .models import User
+from .models import User, MyPosts
+from datetime import datetime
+from network.forms import AddPostForm
 
 
 def index(request):
-    return render(request, "network/index.html")
+    return render(request, "network/index.html", {"allPosts": MyPosts.objects.all()})
 
 
 def login_view(request):
@@ -61,3 +63,22 @@ def register(request):
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "network/register.html")
+
+def new_post(request):
+
+    if request.method == 'POST':
+        form = AddPostForm(request.POST)
+        if form.is_valid():
+            myPost = MyPosts.objects.create(
+                postUser = request.user,
+                postBody = form.cleaned_data['body'],
+                timestamp = datetime.now(),
+                postLikes = 0
+
+            )
+            myPost.save()
+            return HttpResponseRedirect(reverse("index"))
+    else: #reuqest is not post => render the form
+        form = AddPostForm()
+        return render(request, 'network/new_post.html', {'form': form})
+
