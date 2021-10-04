@@ -5,7 +5,10 @@ import datetime
 
 
 class User(AbstractUser):
-    pass
+    followers = models.IntegerField(default=0)
+    following = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=1)
+
+    #pass
 
 class MyPosts(models.Model):
     postUser = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=1)

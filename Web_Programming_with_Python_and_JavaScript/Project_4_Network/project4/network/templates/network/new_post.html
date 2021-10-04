@@ -3,9 +3,9 @@
 {% block body %}
  
 
-<h1>Add new post here</h1>
+<h1 style="margin-left: 20px;">Add new post here</h1>
 
-    <form  action="{% url 'new_post' %}" method="post">
+    <form style="margin-left: 20px;" action="{% url 'new_post' %}" method="post">
         {% csrf_token %}
         
                 

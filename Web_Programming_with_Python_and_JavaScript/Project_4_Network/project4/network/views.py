@@ -10,7 +10,7 @@ from network.forms import AddPostForm
 
 
 def index(request):
-    return render(request, "network/index.html", {"allPosts": MyPosts.objects.all()})
+    return render(request, "network/index.html", {"allPosts": MyPosts.objects.order_by('-timestamp').all()})
 
 
 def login_view(request):
@@ -83,3 +83,28 @@ def new_post(request):
         return render(request, 'network/new_post.html', {'form': form})
 
 #temporary end
+
+
+def profile_page(request):
+    user = request.user
+    followingCount = User.objects.exclude(username = request.user).all().count()
+
+    if request.method == 'POST':
+    
+        return render(request, "network/profile_page.html", {
+        "user": user,
+        "userObj": User.objects.exclude(username = request.user).all(),
+        "followingCount": followingCount,
+        "posts": MyPosts.objects.filter(postUser=request.user).order_by('-timestamp').all(),
+        "params": request.readline()
+        
+        })
+    else:
+        return render(request, "network/profile_page.html", {
+        "user": user,
+        "userObj": User.objects.exclude(username = request.user).all(),
+        "followingCount": followingCount,
+        "posts": MyPosts.objects.filter(postUser=request.user).order_by('-timestamp').all(),
+        "params": request.readline()
+        
+        })
