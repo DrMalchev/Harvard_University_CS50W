@@ -14,4 +14,4 @@ class MyPosts(models.Model):
     postLikes = models.IntegerField(default=0)
 
     def __str__(self):
-        return f"User: {self.postUser}/ Item: {self.postBody}/ Cat: {self.timestamp}/ Price: {self.postLikes}"
+        return f"Posted by: {self.postUser}/ Post: {self.postBody}/ Timestamp: {self.timestamp}/ Post Likes: {self.postLikes}"

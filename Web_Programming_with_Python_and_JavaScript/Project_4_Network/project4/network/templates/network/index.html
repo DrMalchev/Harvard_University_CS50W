@@ -1,5 +1,47 @@
 {% extends "network/layout.html" %}
 
 {% block body %}
-    {{allPosts}}
+
+
+
+<table style="margin-left: 20px;">
+    <tr>
+        <th>
+            Posted by
+        </th>
+        <th>
+            Post Message
+        </th>
+        <th>
+            Posted on
+        </th>
+        <th>
+            Likes
+        </th>
+
+    </tr>
+    {% for post in allPosts %}
+    <tr>
+        
+        <td style="width: 20%;">
+            {{post.postUser}}
+        </td>
+        <td style="width: 20%;">
+            {{post.postBody}}
+        </td>
+        <td style="width: 20%;">
+            {{post.timestamp}}
+        </td>
+        <td style="width: 20%;">
+            {{post.postLikes}}
+        </td>
+        
+    </tr>{% endfor %}
+</table>
+
+<br>
+
+
+
+
 {% endblock %}
