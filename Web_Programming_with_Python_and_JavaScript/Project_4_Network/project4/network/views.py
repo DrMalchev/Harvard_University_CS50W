@@ -82,3 +82,4 @@ def new_post(request):
         form = AddPostForm()
         return render(request, 'network/new_post.html', {'form': form})
 
+#temporary end
