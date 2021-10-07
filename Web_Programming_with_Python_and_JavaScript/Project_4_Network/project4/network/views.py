@@ -4,9 +4,12 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 
-from .models import User, MyPosts
+from .models import User, MyPosts, Following
 from datetime import datetime
 from network.forms import AddPostForm
+from django.db.models import Count
+from django.views.decorators.csrf import csrf_exempt
+import json
 
 
 def index(request):
@@ -64,6 +67,11 @@ def register(request):
     else:
         return render(request, "network/register.html")
 
+
+
+
+
+
 def new_post(request):
 
     if request.method == 'POST':
@@ -84,11 +92,19 @@ def new_post(request):
 
 #temporary end
 
-
+@csrf_exempt
 def profile_page(request):
-    user = request.user
-    followingCount = User.objects.exclude(username = request.user).all().count()
 
+    
+    user = request.user
+    followingCount = Following.objects.filter(owner=request.user).values_list('following').distinct().count()
+    followingList = list(Following.objects.filter(owner=request.user).values_list('following', flat=True))
+    #followingList = ["tom", "jerry"]
+    
+    followersCount=Following.objects.filter(owner=request.user).values_list('followers').count()
+
+
+    #followersCount = User.followers.count()
     if request.method == 'POST':
     
         return render(request, "network/profile_page.html", {
@@ -104,7 +120,39 @@ def profile_page(request):
         "user": user,
         "userObj": User.objects.exclude(username = request.user).all(),
         "followingCount": followingCount,
+        "followersCount": followersCount,
         "posts": MyPosts.objects.filter(postUser=request.user).order_by('-timestamp').all(),
-        "params": request.readline()
+        "params": request.readline(),
+        "followingList": followingList
+        })
+
+def following(request):
+
+
+
+
+    return render(request, "network/following.html", {
+        "allPosts": MyPosts.objects.order_by('-timestamp').all()
         
         })
+
+def follow(request, follow):
+
+
+    followingList = list(Following.objects.filter(owner=request.user).values_list('following', flat=True))
+
+    if follow not in followingList:
+        new = Following.objects.create(
+            owner=request.user,
+            following=follow,
+            followers=""
+        )
+        new.save()
+    else:
+        Following.objects.all().filter(following=follow).delete()
+        # for item in Following.objects.all():
+
+        #     if item.following == follow:
+        #         item.following == "dummy"
+
+    return HttpResponseRedirect(reverse("profile_page"))
