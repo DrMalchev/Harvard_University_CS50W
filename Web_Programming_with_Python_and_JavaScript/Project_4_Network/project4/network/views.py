@@ -101,7 +101,7 @@ def profile_page(request):
     followingList = list(Following.objects.filter(owner=request.user).values_list('following', flat=True))
     #followingList = ["tom", "jerry"]
     
-    followersCount=Following.objects.filter(owner=request.user).values_list('followers').count()
+    followersCount=Following.objects.filter(following=request.user).values_list('followers').count()
 
 
     #followersCount = User.followers.count()
@@ -127,13 +127,17 @@ def profile_page(request):
         })
 
 def following(request):
-
-
+    usersIFollow = list(Following.objects.filter(owner=request.user).values_list('following', flat=True))
+    allPosts = []
+    for usr in usersIFollow:
+        for post in MyPosts.objects.all():
+            if post.postUser.username == usr:
+                allPosts.append(post)
 
 
     return render(request, "network/following.html", {
-        "allPosts": MyPosts.objects.order_by('-timestamp').all()
-        
+        "allPosts": allPosts,
+        "usersIFollow": usersIFollow
         })
 
 def follow(request, follow):
