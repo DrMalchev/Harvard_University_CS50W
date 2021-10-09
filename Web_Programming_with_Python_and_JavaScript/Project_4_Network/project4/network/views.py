@@ -9,11 +9,16 @@ from datetime import datetime
 from network.forms import AddPostForm
 from django.db.models import Count
 from django.views.decorators.csrf import csrf_exempt
-import json
+from django.core.paginator import Paginator
 
 
 def index(request):
-    return render(request, "network/index.html", {"allPosts": MyPosts.objects.order_by('-timestamp').all()})
+
+    paginator = Paginator(MyPosts.objects.order_by('-timestamp').all(), 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, "network/index.html", {'page_obj': page_obj})
 
 
 def login_view(request):
@@ -134,11 +139,11 @@ def following(request):
             if post.postUser.username == usr:
                 allPosts.append(post)
 
+    paginator = Paginator(allPosts, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
 
-    return render(request, "network/following.html", {
-        "allPosts": allPosts,
-        "usersIFollow": usersIFollow
-        })
+    return render(request, "network/following.html", {'page_obj': page_obj})
 
 def follow(request, follow):
 
