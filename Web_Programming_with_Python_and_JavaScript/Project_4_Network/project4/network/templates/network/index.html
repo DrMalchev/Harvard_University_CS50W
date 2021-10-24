@@ -2,63 +2,174 @@
 
 {% block body %}
 
+{{data}}
+
+{% csrf_token %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelector('Button').addEventListener('click', function () {
+
+
+            var pk = document.querySelector('Button').className
+
+            var element = document.createElement("input");
+            element.setAttribute("id", "edit_field")
+            var sbmt = document.createElement("input");
+            sbmt.setAttribute("type", "submit");
+            sbmt.setAttribute("id", "edit_action")
+            var getEle = document.getElementById(pk);
+            var getEleEmpty = document.getElementById(pk + "_empty");
+            getEle.style.display = 'none';
+            getEleEmpty.appendChild(element);
+            getEleEmpty.appendChild(sbmt);
+
+            document.getElementById("edit_action").addEventListener('click', function () {
+                var data_edited = document.querySelector("#edit_field").value;
+                console.log(data_edited);
+                getEleEmpty.style.display = 'none';
+                getEle.innerHTML = data_edited;
+                getEle.style.display = 'block';
+                fetch(`/edit/${pk}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest', //Necessary to work with request.is_ajax()
+                        //'X-CSRFToken': csrftoken
+                    },
+                    body: JSON.stringify({
+                        data: data_edited
+                    })
+                    //.then(location.reload())
+                })//end fetch
+
+            })
+        })
+        // like function
+        document.querySelectorAll('.like').forEach(item => {
+            item.addEventListener('click', event => {
+                //console.log(item.innerHTML);
+                    var like = item.id.slice(0,-5);
+                    like=like[like.length-1];
+                    
+                    if (like=="1"){
+                        item.innerHTML="👎";
+                        console.log(like);
+                        var pk = item.id.slice(0, -7); 
+                    fetch(`/like/${pk}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest', //Necessary to work with request.is_ajax()
+                        //'X-CSRFToken': csrftoken
+                    },
+                    body: JSON.stringify({
+                        data: "0"
+                    })
+                    
+                })//end fetch
+                    } //end if
+                    else
+                    {
+                        item.innerHTML="👍";
+                        console.log(like);
+                        var pk = item.id.slice(0, -7); 
+                    fetch(`/like/${pk}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest', //Necessary to work with request.is_ajax()
+                        //'X-CSRFToken': csrftoken
+                    },
+                    body: JSON.stringify({
+                        data: "1"
+                    })
+                    
+                })//end fetch
+                    }
+                    
+                })
+                
+
+            
+        })
+
+    })
+
+
+
+</script>
+
+
+
 <div style="margin-left: 20px; margin-top: 10px;">
 
-<table>
-    <tr>
-        <th>
-            Posted by
-        </th>
-        <th>
-            Post Message
-        </th>
-        <th>
-            Posted on
-        </th>
-        <th>
-            Likes
-        </th>
+    <table style="width: 800px;">
+        <tr>
+            <th>
+                Posted by
+            </th>
+            <th>
+                Post Message
+            </th>
+            <th>
+                Posted on
+            </th>
+            <th>
+                Like
+            </th>
 
-    </tr>
-    {% for post in page_obj %}
-    <tr>
-        
-        <td style="width: 20%;">
-            {{post.postUser}}
-        </td>
-        <td style="width: 20%;">
-            {{post.postBody}}
-        </td>
-        <td style="width: 20%;">
-            {{post.timestamp}}
-        </td>
-        <td style="width: 20%;">
-            {{post.postLikes}}
-        </td>
-        
-    </tr>{% endfor %}
-</table>
+        </tr>
+        {% for post in page_obj %}
+        <tr>
 
-<br>
+            <td style="width: 150px;">
+                {{post.postUser}}
+            </td>
+            <td style="width: auto">
+                <span id={{post.pk}}>{{post.postBody}}</span><span id="{{post.pk}}_empty"></span>
+            </td>
+            <td style="width: 250px;">
+                {{post.timestamp}}
+            </td>
+            <td style="width: 50px;">
+                <span>{{post.postLikes}}</span>
+                {% if post.like == 1 %}
+                <a class="like" id={{post.pk}}_{{post.like}}_like href="#">👍</a>
+                {% else %}
+                <a class="like" id={{post.pk}}_{{post.like}}_like href="#">👎</a>
+                {% endif %}
+            </td>
+            <td style=" width: 50px;">
+                {%if post.postUser == user%}
+                <button class={{post.pk}}>Edit</button>
+                {%endif%}
+            </td>
 
-<hr>
-<div class="pagination">
-    <span class="step-links">
-        {% if page_obj.has_previous %}
+        </tr>
+
+        {% endfor %}
+    </table>
+
+    <br>
+
+    <hr>
+    <div class="pagination">
+        <span class="step-links">
+            {% if page_obj.has_previous %}
             <a href="?page=1">&laquo; first</a>
             <a href="?page={{ page_obj.previous_page_number }}">previous</a>
-        {% endif %}
+            {% endif %}
 
-        <span class="current">
-            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
-        </span>
+            <span class="current">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+            </span>
 
-        {% if page_obj.has_next %}
+            {% if page_obj.has_next %}
             <a href="?page={{ page_obj.next_page_number }}">next</a>
             <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
-        {% endif %}
-    </span>
-</div>
+            {% endif %}
+        </span>
+    </div>
 
 </div>
 

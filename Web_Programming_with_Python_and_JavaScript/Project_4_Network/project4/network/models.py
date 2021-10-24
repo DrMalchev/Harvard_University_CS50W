@@ -15,6 +15,7 @@ class MyPosts(models.Model):
     postBody = models.CharField( max_length=256, default=None)
     timestamp = models.DateTimeField()
     postLikes = models.IntegerField(default=0)
+    like = models.IntegerField(default=0)
 
     def __str__(self):
         return f"Posted by: {self.postUser}/ Post: {self.postBody}/ Timestamp: {self.timestamp}/ Post Likes: {self.postLikes}"

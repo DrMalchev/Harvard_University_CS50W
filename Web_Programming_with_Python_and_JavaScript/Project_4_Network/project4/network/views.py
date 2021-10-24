@@ -1,3 +1,4 @@
+from typing import Text
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
@@ -10,15 +11,23 @@ from network.forms import AddPostForm
 from django.db.models import Count
 from django.views.decorators.csrf import csrf_exempt
 from django.core.paginator import Paginator
+import json
 
-
+@csrf_exempt
 def index(request):
 
     paginator = Paginator(MyPosts.objects.order_by('-timestamp').all(), 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
+    #user = User.objects.filter(username=request.User)
+   # rawData = json.loads(request.body, strict=False)
+    #data = rawData("data")
 
-    return render(request, "network/index.html", {'page_obj': page_obj})
+    return render(request, "network/index.html", {
+        'page_obj': page_obj,
+        'user': request.user,
+        #'data':rawData
+        })
 
 
 def login_view(request):
@@ -165,3 +174,34 @@ def follow(request, follow):
         #         item.following == "dummy"
 
     return HttpResponseRedirect(reverse("profile_page"))
+
+@csrf_exempt
+def edit(request, pk):
+   # user = User.objects.filter(username=request.User)
+    rawData = json.loads(request.body, strict=False)
+    
+
+    data = rawData["data"]
+    myPost = MyPosts.objects.get(postUser=request.user, pk = pk)
+    myPost.postBody = data
+    myPost.timestamp = datetime.now()
+
+            
+    myPost.save()
+    return HttpResponseRedirect(reverse("index"))
+
+@csrf_exempt
+def like(request, pk):
+   # user = User.objects.filter(username=request.User)
+    rawData = json.loads(request.body, strict=False)
+    
+
+    data = rawData["data"]
+    myPost = MyPosts.objects.get(pk = pk)
+    myPost.like = data
+    if (data=="1"):
+        myPost.postLikes+=1
+    else:
+        myPost.postLikes-=1
+    myPost.save()
+    return HttpResponseRedirect(reverse("index"))
