@@ -7,90 +7,105 @@
 {% csrf_token %}
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        document.querySelector('Button').addEventListener('click', function () {
+        document.querySelectorAll('Button').forEach(item => {
+            item.addEventListener('click', event => {
+                console.log(item.className);
+                var editThis = item.className;
+
+                var element = document.createElement("input");
+                element.setAttribute("id", "field" + editThis)
+                var sbmt = document.createElement("input");
+                sbmt.setAttribute("type", "submit");
+                sbmt.setAttribute("id", "action" + editThis)
+                var getEle = document.getElementById(editThis);
+                var getEleEmpty = document.getElementById(editThis + "_empty");
+                getEle.style.display = 'none';
+                getEleEmpty.appendChild(element);
+                getEleEmpty.appendChild(sbmt);
+
+                // 
+                document.getElementById("action" + editThis).addEventListener('click', event => {
+                    var data_edited = document.querySelector("#field" + editThis).value;
+                    console.log(data_edited);
+
+                    getEleEmpty.style.display = 'none';
+                    getEle.innerHTML = data_edited;
+                    getEle.style.display = 'block';
+                    fetch(`/edit/${editThis}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest', //Necessary to work with request.is_ajax()
+                            //'X-CSRFToken': csrftoken
+                        },
+                        body: JSON.stringify({
+                            data: data_edited
+                        })
+                        //.then(location.reload())
+                    })//end fetch
+                })
+
+            })//end eventListener
+        })//end queryselectorAll
 
 
-            var pk = document.querySelector('Button').className
-
-            var element = document.createElement("input");
-            element.setAttribute("id", "edit_field")
-            var sbmt = document.createElement("input");
-            sbmt.setAttribute("type", "submit");
-            sbmt.setAttribute("id", "edit_action")
-            var getEle = document.getElementById(pk);
-            var getEleEmpty = document.getElementById(pk + "_empty");
-            getEle.style.display = 'none';
-            getEleEmpty.appendChild(element);
-            getEleEmpty.appendChild(sbmt);
-
-            document.getElementById("edit_action").addEventListener('click', function () {
-                var data_edited = document.querySelector("#edit_field").value;
-                console.log(data_edited);
-                getEleEmpty.style.display = 'none';
-                getEle.innerHTML = data_edited;
-                getEle.style.display = 'block';
-                fetch(`/edit/${pk}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest', //Necessary to work with request.is_ajax()
-                        //'X-CSRFToken': csrftoken
-                    },
-                    body: JSON.stringify({
-                        data: data_edited
-                    })
-                    //.then(location.reload())
-                })//end fetch
-
-            })
-        })
+        //
+        //
         // like function
         document.querySelectorAll('.like').forEach(item => {
             item.addEventListener('click', event => {
                 //console.log(item.innerHTML);
-                    var like = item.id.slice(0,-5);
-                    like=like[like.length-1];
-                    
-                    if (like=="1"){
-                        item.innerHTML="👎";
-                        console.log(like);
-                        var pk = item.id.slice(0, -7); 
-                    fetch(`/like/${pk}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest', //Necessary to work with request.is_ajax()
-                        //'X-CSRFToken': csrftoken
-                    },
-                    body: JSON.stringify({
-                        data: "0"
-                    })
-                    
-                })//end fetch
-                    } //end if
-                    else
-                    {
-                        item.innerHTML="👍";
-                        console.log(like);
-                        var pk = item.id.slice(0, -7); 
-                    fetch(`/like/${pk}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest', //Necessary to work with request.is_ajax()
-                        //'X-CSRFToken': csrftoken
-                    },
-                    body: JSON.stringify({
-                        data: "1"
-                    })
-                    
-                })//end fetch
-                    }
-                    
-                })
-                
+                var like = item.id.slice(0, -5);
+                like = like[like.length - 1];
 
-            
+                if (like == "1") {
+                    item.innerHTML = "👎";
+                    var pk = item.id.slice(0, -7);
+                    var numbers = document.getElementById(pk+"_count").innerHTML;
+                    var newcount = parseInt(numbers) -1;
+                    document.getElementById(pk+"_count").innerHTML = newcount;
+                    console.log(like);
+                    
+                    
+                    fetch(`/like/${pk}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest', //Necessary to work with request.is_ajax()
+                            //'X-CSRFToken': csrftoken
+                        },
+                        body: JSON.stringify({
+                            data: "0"
+                        })
+
+                    })//end fetch
+                } //end if
+                else {
+                    item.innerHTML = "👍";
+                    var pk = item.id.slice(0, -7);
+                    var numbers = document.getElementById(pk+"_count").innerHTML;
+                    var newcount = parseInt(numbers) +1;
+                    document.getElementById(pk+"_count").innerHTML = newcount;
+                    console.log(like);
+                    
+                    fetch(`/like/${pk}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest', //Necessary to work with request.is_ajax()
+                            //'X-CSRFToken': csrftoken
+                        },
+                        body: JSON.stringify({
+                            data: "1"
+                        })
+
+                    })//end fetch
+                }
+
+            })
+
+
+
         })
 
     })
@@ -132,7 +147,7 @@
                 {{post.timestamp}}
             </td>
             <td style="width: 50px;">
-                <span>{{post.postLikes}}</span>
+                <span id={{post.pk}}_count>{{post.postLikes}}</span>
                 {% if post.like == 1 %}
                 <a class="like" id={{post.pk}}_{{post.like}}_like href="#">👍</a>
                 {% else %}
