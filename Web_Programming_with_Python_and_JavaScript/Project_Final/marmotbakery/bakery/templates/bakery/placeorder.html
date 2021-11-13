@@ -1,0 +1,196 @@
+{% extends "bakery/layout.html" %}
+
+{% block body %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+        //default value for price
+        document.getElementById('id_price').value = "$3.50"
+        document.querySelector('#id_breadType').addEventListener('change', function () {
+            switch (document.getElementById('id_breadType').value) {
+                case "White Bread":
+                    document.getElementById('id_price').value = "$3.50"
+                    break;
+                case "Country Bread":
+                    document.getElementById('id_price').value = "$3.90"
+                    break;
+                case "Oat Porridge Bread":
+                    document.getElementById('id_price').value = "$4.90"
+                    break;
+                case "Semolina Bread":
+                    document.getElementById('id_price').value = "$4.50"
+                    break;
+                case "100% Rye Bread":
+                    document.getElementById('id_price').value = "$6.90"
+                    break;
+                case "Focaccia":
+                    document.getElementById('id_price').value = "$5.00"
+                    break;
+                case "Toast Bread":
+                    document.getElementById('id_price').value = "$3.00"
+                    break;
+                case "Sweet Brioche":
+                    document.getElementById('id_price').value = "$9.90"
+                    break;
+
+                default:
+                    break;
+            }
+
+        })
+        
+        document.getElementById('id_breadType').addEventListener('change', function() {
+            var print = calcTotalPrice()
+            console.log(print)
+            document.getElementById('totalPrice').innerHTML = "$ " + print
+        })
+        document.getElementById('id_quantity').addEventListener('change', function() {
+            var print = calcTotalPrice()
+            
+            document.getElementById('totalPrice').innerHTML = "$ " + print
+        })
+           
+  
+    })
+
+    function calcTotalPrice(){
+        if (document.getElementById('id_price').value == '') {
+            var cleanedPrice = document.getElementById('id_price').placeholder.substring(1)
+        }
+        else
+        {
+            var cleanedPrice = document.getElementById('id_price').value.substring(1)
+        }
+            
+            var quantity = document.getElementById('id_quantity').value
+            if (quantity == '') { quantity = 0 }
+            var totalPrice = parseFloat(cleanedPrice) * quantity
+            // console.log(cleanedPrice)
+            // console.log(quantity)
+            // console.log(totalPrice)
+            return totalPrice.toFixed(2)
+            
+        }
+
+</script>
+
+<h2>Place Your Order</h2>
+
+<form action="{% url 'placeorder' %}" method="post">
+    {% csrf_token %}
+    <table class="table table-bordered">
+        <thead class="thead-light">
+            <tr>
+                <th class="text-center">Order Details </th>
+                <th class="text-center">Shipping Details </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    <table style="margin-right: auto; margin-left: auto;">
+                        <tr>
+                            <td>
+                                <p style="float: right;">Bread Type: {{form.breadType}}</p>
+                            </td>
+                            <td>
+                                <p style="float: right;">Price: {{form.price}}</p>
+                            </td>
+                            <td>
+                                <p>Quantity: {{form.quantity}}</p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                <p style="float: right;">Total Price: </p>
+                            </td>
+                            <td>
+                                <p style="text-align: center;" id="totalPrice"></p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="3">
+                                <p>Leave your feedback here:</p>
+                                <p>{{form.comment}}</p>
+                            </td>
+                        </tr>
+
+                    </table>
+
+
+
+
+                </td>
+                <td>
+                    <table style="margin-right: auto; margin-left: auto;">
+                        <tr>
+                            <td>
+                                <p style="float: right;">First Name: {{form.firstName}}</p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <p style="float: right;">Last Name: {{form.lastName}}</p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <p style="float: right;">City: {{form.city}}</p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <p style="float: right;">Postal Code: {{form.postCode}}</p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <p style="float: right;">Address Line 1: {{form.addressL1}}</p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <p style="float: right;">Address Line 2: {{form.addressL2}}</p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <p style="float: right;">Telephone Number: {{form.tel}}</p>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+
+            </tr>
+
+
+
+        </tbody>
+    </table>
+
+    <input type="submit" value="Order Now">
+
+    <!-- </tr>
+            <tr>
+                <td>First Name </td>
+                <td>{{form.firstName}}</td>
+            </tr>
+            <tr>
+                <td>Last Name </td>
+                <td>{{form.lastName}}</td>
+            </tr>
+            <tr>
+                <td>City </td>
+                <td>{{form.city}}</td>
+            </tr>
+            <tr>
+                <td>Postal Code </td>
+                <td>{{form.postCode}}</td>
+            </tr>
+        </table> -->
+
+
+
+</form>
+
+{% endblock %}
