@@ -1,3 +1,5 @@
+
+import datetime
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.conf import settings
@@ -30,3 +32,8 @@ class Orders(models.Model):
     tel = models.IntegerField()
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=1)
     price = models.CharField(default=0, max_length=64)
+    orderTime = models.DateTimeField(default=datetime.datetime.now)
+    cumulative = models.IntegerField(default=0)
+    brake = models.BooleanField(default=False)
+    deliveryTime = models.DateTimeField(default=datetime.datetime.now)
+

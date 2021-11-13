@@ -1,10 +1,13 @@
+
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
+from django.db.models.aggregates import Sum
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
-import datetime
+from datetime import datetime, timedelta
+from django.db.models import Count
 
 from bakery.forms import PlaceOrderForm
 
@@ -75,6 +78,10 @@ def placeorder(request):
         form = PlaceOrderForm(request.POST)
             
         if form.is_valid():
+            if Orders.objects.all().count()==0:
+                cum=0
+            else:
+                cum=Orders.objects.aggregate(Sum('quantity'))['quantity__sum']
 
             order = Orders.objects.create(
             firstName = form.cleaned_data['firstName'],
@@ -88,13 +95,20 @@ def placeorder(request):
             tel = form.cleaned_data['tel'],
             quantity = form.cleaned_data['quantity'],
             owner = request.user,
-            price = form.cleaned_data['price']
+            price = form.cleaned_data['price'],
+            orderTime = datetime.now().replace(microsecond=0),
+            brake = False,
+            deliveryTime = datetime.now().date() + timedelta(days = 2),
+            cumulative = cum + form.cleaned_data['quantity']
             
             )
-
+            
             order.save()
+            
+            #get cumulative
+            
                 
-            return HttpResponseRedirect(reverse("index"))
+            return HttpResponseRedirect(reverse("waitlist"))
         else:
             lastOrder = Orders.objects.filter(owner=request.user).order_by('-id')[0]
             form = PlaceOrderForm(initial=
@@ -129,15 +143,30 @@ def placeorder(request):
         return render(request, 'bakery/placeorder.html', {'form': form})
 
 def waitlist(request):
+    totalCount = Orders.objects.aggregate(Sum('quantity'))['quantity__sum']
+
+    check = 10
+    daysPlus = 2
+    for order in Orders.objects.all():
+        if order.cumulative > check:
+            order.brake = True
+            check += 10
+            daysPlus+=1
+            order.deliveryTime = datetime.now().date() + timedelta(days = daysPlus)
+            order.save()
+            
+            
     return render(request, "bakery/waitlist.html", {
         "orders": Orders.objects.all(),
         "user": request.user,
-        "date": datetime.datetime.now
+        "totalCount": totalCount,
+        "timePlus2Days": datetime.now().date() + timedelta(days = 2)
+        # Bread needs 2 days after ordering to be ready
         })
 
 def myorders(request):
     return render(request, "bakery/myorders.html", {
         "orders": Orders.objects.all(),
         "user": request.user,
-        "date": datetime.datetime.now
+        
         })

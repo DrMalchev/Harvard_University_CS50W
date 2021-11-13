@@ -1,19 +1,45 @@
 {% extends "bakery/layout.html" %}
 
 {% block body %}
-    <h2>All Orders</h2>
+    <h2>Waitlist</h2>
+    <div>
+        <p>
+            Please note that we have a total daily capacity for only 10 loafs.
+        </p>
+        <p>
+            Orders placed after 21:00 CET will be sheduled for the next day.
+        </p>
+        <hr>
+    </div>
 
+    <table class="table">
+    <thead class="thead-light">
+        <th>Number</th>
+        <th>Bread Type</th>
+        <th>Quantity</th>
+        <th>Order Date</th>
+    </thead>
+    <tbody>
+        <tr><td colspan="4">
+            <p style="text-align:center; background: rgb(210, 238, 207); padding: 5px;">Bread will be ready on:  {{timePlus2Days}}</p>
+        </td></tr>
     {% for order in orders  %}
-    {{order.breadType}}
-    <table class="table table-light">
-<thead>
+    {% if order.brake == True %}
+    <tr><td colspan="4">
+        <p style="text-align:center; background: rgb(210, 238, 207); padding: 5px;">Bread will be ready on:  {{order.deliveryTime.date}}</p>
+    </td></tr> 
+       {% endif %}
+    <tr>
+        <td>{{order.pk}}</td>
+        <td>{{order.breadType}}</td>
+        <td>{{order.quantity}}</td>
+        <td>{{order.orderTime}}</td>
+    </tr>
+   
+   </tbody>
 
-</thead>
-<tbody>
-
-</tbody>
-    </table>
-    <!-- <p>{{order.breadType}}</p> -->
 
     {% endfor %}
+</table>
+
 {% endblock %}
