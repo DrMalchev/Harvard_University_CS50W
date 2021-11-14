@@ -36,4 +36,6 @@ class Orders(models.Model):
     cumulative = models.IntegerField(default=0)
     brake = models.BooleanField(default=False)
     deliveryTime = models.DateTimeField(default=datetime.datetime.now)
+    processed = models.IntegerField(default=0, null=False)
+    active = models.BooleanField(default=False)
 

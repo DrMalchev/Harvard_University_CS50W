@@ -16,7 +16,7 @@ breadType = (
 
 class PlaceOrderForm(forms.Form):
     breadType = forms.ChoiceField(choices=breadType, required=True)
-    quantity = forms.IntegerField(min_value=0, required=True)
+    quantity = forms.IntegerField(min_value=1, max_value=5, required=True)
     firstName = forms.CharField(label='First Name', max_length=64, required=True)
     lastName = forms.CharField(label='First Name', max_length=64, required=True)
     city = forms.CharField(label='city', max_length=64, required=True)

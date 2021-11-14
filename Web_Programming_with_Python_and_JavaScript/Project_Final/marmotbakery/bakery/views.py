@@ -6,7 +6,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta, time
 from django.db.models import Count
 
 from bakery.forms import PlaceOrderForm
@@ -79,9 +79,39 @@ def placeorder(request):
             
         if form.is_valid():
             if Orders.objects.all().count()==0:
-                cum=0
+                cumuTemp=0
+                lastDeliveryDate = datetime.now().date() + timedelta(days = 2)
             else:
-                cum=Orders.objects.aggregate(Sum('quantity'))['quantity__sum']
+                cumuTemp=Orders.objects.filter(processed = 0).aggregate(Sum('quantity'))['quantity__sum']
+                lastDeliveryDate = Orders.objects.order_by('-deliveryTime').latest('deliveryTime').deliveryTime.date()
+
+            check = 10 #max daily capacity
+            deliveryOn = lastDeliveryDate
+            #check if daily orders exceed capacity of 10 and reshedule for day + 1
+            if cumuTemp >= check:
+                cumuTemp = 0
+                
+                Orders.objects.all().update(processed =1)
+                deliveryOn = lastDeliveryDate + timedelta(days = 1)
+                
+            #check if order is received after 21:00 CET and  reshedule for day + 1
+            #Sourdough has to be prepared for the next day. if order comes in after 21:00 CET
+            #there will be no soudough for its completion => reshedule
+            if datetime.now().hour > 21: 
+                if Orders.objects.order_by('-deliveryTime').latest('processed').processed == 1:
+                    deliveryOn = lastDeliveryDate
+                else:
+                    deliveryOn = lastDeliveryDate + timedelta(days = 1)
+                    Orders.objects.all().update(processed =1)
+                    cumuTemp = 0
+            
+            #special case when user orders more than 1 bread and exceeds the capacity of 10
+            #therefore the cumulative value and the delivery date have to be corrected
+            #because the model accepts cumulative value greater than 10
+            if cumuTemp + form.cleaned_data['quantity'] > check:
+                cumuTemp = 0
+                deliveryOn = Orders.objects.order_by('-deliveryTime').latest('deliveryTime').deliveryTime.date() + timedelta(days = 1)
+                Orders.objects.all().update(processed =1)
 
             order = Orders.objects.create(
             firstName = form.cleaned_data['firstName'],
@@ -98,16 +128,12 @@ def placeorder(request):
             price = form.cleaned_data['price'],
             orderTime = datetime.now().replace(microsecond=0),
             brake = False,
-            deliveryTime = datetime.now().date() + timedelta(days = 2),
-            cumulative = cum + form.cleaned_data['quantity']
+            deliveryTime = deliveryOn,
+            cumulative = cumuTemp + form.cleaned_data['quantity']
             
             )
-            
             order.save()
-            
-            #get cumulative
-            
-                
+           
             return HttpResponseRedirect(reverse("waitlist"))
         else:
             lastOrder = Orders.objects.filter(owner=request.user).order_by('-id')[0]
@@ -124,7 +150,7 @@ def placeorder(request):
         return render(request, 'bakery/placeorder.html', {'form': form})
 
     
-    else:
+    else: #request is GET, render empty form
         checkUser = Orders.objects.filter(owner=request.user).count()
         if checkUser==0:
             form = PlaceOrderForm()
@@ -140,27 +166,30 @@ def placeorder(request):
         'tel': lastOrder.tel
         })
 
-        return render(request, 'bakery/placeorder.html', {'form': form})
+        if Orders.objects.all().count() ==0:
+            maxDailyLeft = 10
+        else:
+            maxDailyLeft = Orders.objects.all().last().cumulative
+            if maxDailyLeft==10:
+                maxDailyLeft=10
+            else:
+                maxDailyLeft = 10 - Orders.objects.all().last().cumulative
+        return render(request, 'bakery/placeorder.html', {
+            'form': form,
+            'maxDailyLeft': maxDailyLeft
+            })
 
 def waitlist(request):
     totalCount = Orders.objects.aggregate(Sum('quantity'))['quantity__sum']
 
-    check = 10
-    daysPlus = 2
-    for order in Orders.objects.all():
-        if order.cumulative > check:
-            order.brake = True
-            check += 10
-            daysPlus+=1
-            order.deliveryTime = datetime.now().date() + timedelta(days = daysPlus)
-            order.save()
-            
             
     return render(request, "bakery/waitlist.html", {
-        "orders": Orders.objects.all(),
+        "orders": Orders.objects.filter(orderTime__gt = datetime.today().date()).order_by('deliveryTime').all(),
         "user": request.user,
         "totalCount": totalCount,
-        "timePlus2Days": datetime.now().date() + timedelta(days = 2)
+        "timePlus2Days": datetime.now().date() + timedelta(days = 2),
+       # "lastDeliveryDate": lastDeliveryDate,
+        #"lastDeliveryDate1": lastDeliveryDate1
         # Bread needs 2 days after ordering to be ready
         })
 

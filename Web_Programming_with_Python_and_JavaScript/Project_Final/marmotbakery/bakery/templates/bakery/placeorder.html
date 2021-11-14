@@ -44,10 +44,28 @@
             console.log(print)
             document.getElementById('totalPrice').innerHTML = "$ " + print
         })
+        var maxDailyLeft = document.getElementById('maxDailyLeft').innerHTML
         document.getElementById('id_quantity').addEventListener('change', function() {
+            //calculate final price
             var print = calcTotalPrice()
-            
             document.getElementById('totalPrice').innerHTML = "$ " + print
+            //update how any breads can be ordered until capacity is reached
+            var orderCount = document.getElementById('id_quantity').value
+            
+            var newValue = maxDailyLeft - orderCount
+            console.log(newValue)
+            if (newValue <0) {
+                document.getElementById('countInfo1').style.display ="none";
+                document.getElementById('countInfo2').style.display ="block";
+                document.getElementById('countInfo2').innerHTML = "NOTE: Order exceeds daily capacity and will be placed for the next day."
+                document.getElementById('countInfo2').classList.add("alert-warning");
+                
+            }
+            else{
+                document.getElementById('countInfo1').style.display ="block";
+                document.getElementById('countInfo2').style.display ="none";
+                document.getElementById('maxDailyLeft').innerHTML = newValue
+            }
         })
            
   
@@ -114,6 +132,12 @@
                                 <p>{{form.comment}}</p>
                             </td>
                         </tr>
+                        <tr>
+                            <td colspan="3">
+                                <p id="countInfo1">You can order <span id="maxDailyLeft" style="border-radius: 10px;  padding: 10px; background: rgb(207, 194, 185);">{{maxDailyLeft}}</span> breads until our daily capacity is reached.</p>
+                                <p id="countInfo2"></p>
+                            </td>
+                        </tr>
 
                     </table>
 
@@ -170,27 +194,7 @@
 
     <input type="submit" value="Order Now">
 
-    <!-- </tr>
-            <tr>
-                <td>First Name </td>
-                <td>{{form.firstName}}</td>
-            </tr>
-            <tr>
-                <td>Last Name </td>
-                <td>{{form.lastName}}</td>
-            </tr>
-            <tr>
-                <td>City </td>
-                <td>{{form.city}}</td>
-            </tr>
-            <tr>
-                <td>Postal Code </td>
-                <td>{{form.postCode}}</td>
-            </tr>
-        </table> -->
-
-
-
+    
 </form>
 
 {% endblock %}

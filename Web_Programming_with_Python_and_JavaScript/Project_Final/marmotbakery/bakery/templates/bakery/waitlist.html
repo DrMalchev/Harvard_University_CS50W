@@ -4,10 +4,11 @@
     <h2>Waitlist</h2>
     <div>
         <p>
-            Please note that we have a total daily capacity for only 10 loafs.
-        </p>
-        <p>
-            Orders placed after 21:00 CET will be sheduled for the next day.
+            Please note that we have a total daily capacity for only 10 loafs. 
+            We need 2 days in order to make your bread. You can order maximum 5 loafs per day.
+            According to the waitinglist the completion time of your order may vary.
+            Orders placed after 21:00 CET will be considered as next day orders.
+            Refer to <a href="{% url 'myorders' %}">My Orders</a> for order details and exact delivery date.
         </p>
         <hr>
     </div>
@@ -15,25 +16,22 @@
     <table class="table">
     <thead class="thead-light">
         <th>Number</th>
+        <th>User</th>
         <th>Bread Type</th>
         <th>Quantity</th>
-        <th>Order Date</th>
+        <th>Delivery Date</th>
     </thead>
     <tbody>
-        <tr><td colspan="4">
-            <p style="text-align:center; background: rgb(210, 238, 207); padding: 5px;">Bread will be ready on:  {{timePlus2Days}}</p>
-        </td></tr>
+        
     {% for order in orders  %}
-    {% if order.brake == True %}
-    <tr><td colspan="4">
-        <p style="text-align:center; background: rgb(210, 238, 207); padding: 5px;">Bread will be ready on:  {{order.deliveryTime.date}}</p>
-    </td></tr> 
-       {% endif %}
+    
     <tr>
-        <td>{{order.pk}}</td>
+        <td>{{order.cumulative}}</td>
+        <td>{{order.owner.username}}</td>
         <td>{{order.breadType}}</td>
         <td>{{order.quantity}}</td>
-        <td>{{order.orderTime}}</td>
+        <td>{{order.deliveryTime.date}}</td>
+        
     </tr>
    
    </tbody>
