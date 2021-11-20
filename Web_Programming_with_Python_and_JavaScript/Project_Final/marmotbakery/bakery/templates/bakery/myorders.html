@@ -1,7 +1,112 @@
 {% extends "bakery/layout.html" %}
 
 {% block body %}
-    <h2>My Orders</h2>
+{% load custom_tags %}
 
-   
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+        //
+        var maxId = [];
+        var pMetrics = document.querySelectorAll(".myMetricsP");
+        //get bread with max count
+        pMetrics.forEach(function(item) {maxId.push(item.id);})
+        var maxWidth = Math.max.apply(Math, maxId);
+        console.log(maxWidth)
+        //iterate over all p and change width
+        //max width is 50%
+        pMetrics.forEach(function(item) {
+            var pWidth = 50*item.id/maxWidth;
+            
+            item.style.width = pWidth+"%";
+            
+           // console.log(pWidth)
+        })
+
+    })
+</script>
+
+<h2>My Current Orders</h2>
+
+<div style="width: 100%; display: flex; flex-wrap: wrap;" class=" myCurrent">
+    {% for order in orders %}
+    <div style="width: 300px; background: rgb(221, 228, 221); border-radius: 10px; padding: 10px; margin: 5px;">
+        <h3>{{order.breadType}}</h3>
+        <hr>
+        <div>
+            <p style="margin: 5px 0;">Quantity: {{order.quantity}}</p>
+            <p style="margin: 5px 0;">Delivery Date: {{order.deliveryTime.date}}</p>
+            <p style="margin: 5px 0;">Price per item: {{order.price}}</p>
+
+
+        </div>
+        <div>
+            <p>Total Price: ${{order.price|removeDollar | multiply:order.quantity }}</p>
+        </div>
+        <hr>
+        <div>
+            <a href="">Edit</a> | <a href="">Delete</a>
+        </div>
+
+    </div>
+
+    {% endfor %}
+
+
+</div>
+<hr>
+
+
+<div class="myHistory">
+    <h2>Order History</h2>
+    Hello, {{user}}! Your most ordered bread is {{mostOrdered}}.
+    <div class="mySummary">
+        <h4>Your Metrics</h4>
+        {% for key, value in summaryByType %}
+
+        <div id=myMetrics>
+            <p class = "myMetricsP" id="{{value}}"><span>{{key}}: </span> <span class = "myMetricsS"  style="float: right;">{{value}} </span></p>
+        </div>
+
+
+
+    </div>
+
+    {% endfor %}
+</div>
+<table class="table">
+    <thead class="thead-light">
+        <th>Delivery Date</th>
+        <th>Bread Type</th>
+        <th>Quantity</th>
+        <th>Price per Bread</th>
+
+        <th>Total Price</th>
+    </thead>
+    <tbody>
+        {% if ordersHistory.count == 0%}
+            <tr> <td colspan="5">Currently there are no orders in the history. Data will be available here once your orders are delivered.  </td> </tr>
+        {% endif %}
+        
+        {% for order in ordersHistory %}
+        
+        <tr>
+            <td>{{order.deliveryTime.date}}</td>
+            <td>{{order.breadType}}</td>
+            <td>{{order.quantity}}</td>
+            <td>{{order.price}}</td>
+
+            <td>${{order.price|removeDollar | multiply:order.quantity }}</td>
+
+        </tr>
+
+    </tbody>
+
+
+    {% endfor %}
+</table>
+
+</div>
+<hr>
+
 {% endblock %}

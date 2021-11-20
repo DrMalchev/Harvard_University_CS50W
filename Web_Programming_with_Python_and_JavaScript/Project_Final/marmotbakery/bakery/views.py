@@ -8,6 +8,9 @@ from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from datetime import date, datetime, timedelta, time
 from django.db.models import Count
+from django import template
+import collections
+register = template.Library()
 
 from bakery.forms import PlaceOrderForm
 
@@ -97,7 +100,13 @@ def placeorder(request):
             #check if order is received after 21:00 CET and  reshedule for day + 1
             #Sourdough has to be prepared for the next day. if order comes in after 21:00 CET
             #there will be no soudough for its completion => reshedule
-            if datetime.now().hour > 21: 
+            #
+            #special case: additional check if delivery date is more than 2 days from now
+            #if yes, order is not resheduled, because the sourdough planning can be made
+            #2 days in advance
+            #
+            lastDeliveryDate2 = Orders.objects.order_by("-id").values("deliveryTime").first()["deliveryTime"].date() 
+            if datetime.now().hour > 21  and lastDeliveryDate2 > datetime.now().date() + timedelta(days = 2): 
                 if Orders.objects.order_by('-deliveryTime').latest('processed').processed == 1:
                     deliveryOn = lastDeliveryDate
                 else:
@@ -181,21 +190,45 @@ def placeorder(request):
 
 def waitlist(request):
     totalCount = Orders.objects.aggregate(Sum('quantity'))['quantity__sum']
-
-            
+    lastDeliveryDate = Orders.objects.order_by("-id").values("deliveryTime").first()["deliveryTime"].date() 
+    #test case if a bread should be acepted
+    #placed in this section just to check results in the template
+    #ifAccepted = False
+    #if lastDeliveryDate > datetime.now().date() + timedelta(days = 2):
+    #    ifAccepted = True        
     return render(request, "bakery/waitlist.html", {
         "orders": Orders.objects.filter(orderTime__gt = datetime.today().date()).order_by('deliveryTime').all(),
+        "ordersAll": Orders.objects.order_by('deliveryTime').all(),
         "user": request.user,
         "totalCount": totalCount,
         "timePlus2Days": datetime.now().date() + timedelta(days = 2),
-       # "lastDeliveryDate": lastDeliveryDate,
-        #"lastDeliveryDate1": lastDeliveryDate1
+        #"lastDeliveryDate": lastDeliveryDate,
+        #"ifAccepted": ifAccepted
         # Bread needs 2 days after ordering to be ready
         })
 
 def myorders(request):
+    
+    summaryByType = {}
+    
+    for order in  Orders.objects.filter(owner = request.user):
+        if order.breadType in summaryByType:
+            summaryByType[order.breadType] = order.quantity + summaryByType[order.breadType]
+        else:
+            summaryByType[order.breadType] = order.quantity
+    today = datetime.today()
+    mostOrdered = max(summaryByType, key=summaryByType.get)
+    #sorted(summaryByType.items(), key=lambda x: x[1], reverse=True)
     return render(request, "bakery/myorders.html", {
-        "orders": Orders.objects.all(),
+        "summaryByType": sorted(summaryByType.items(), key=lambda x: x[1], reverse=True),
+        "orders": Orders.objects.filter(owner = request.user, deliveryTime__gte=today).all(),
+        "ordersAll": Orders.objects.filter(owner = request.user).values('breadType').distinct(),
+        "ordersHistory": Orders.objects.filter(owner = request.user, deliveryTime__lte=today).all(),
         "user": request.user,
+        "mostOrderedCount": summaryByType[mostOrdered],
+        "mostOrdered": mostOrdered
         
         })
+
+#register = template.Library()
+
