@@ -29,3 +29,7 @@ class PlaceOrderForm(forms.Form):
     price = forms.CharField(required=True, widget=forms.TextInput(attrs={'placeholder': '$3.5', 'size': 3, 'readonly': True}))
     
     
+class EditForm(forms.Form):
+    breadType = forms.ChoiceField(choices=breadType, required=True)
+    quantity = forms.IntegerField(min_value=1, max_value=5, required=True)
+    price = forms.CharField(required=True, widget=forms.TextInput(attrs={'size': 3, 'readonly': True}))

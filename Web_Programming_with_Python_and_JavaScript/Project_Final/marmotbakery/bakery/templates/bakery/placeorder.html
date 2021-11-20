@@ -38,163 +38,156 @@
             }
 
         })
-        
-        document.getElementById('id_breadType').addEventListener('change', function() {
+
+        document.getElementById('id_breadType').addEventListener('change', function () {
             var print = calcTotalPrice()
             console.log(print)
             document.getElementById('totalPrice').innerHTML = "$ " + print
         })
         var maxDailyLeft = document.getElementById('maxDailyLeft').innerHTML
-        document.getElementById('id_quantity').addEventListener('change', function() {
+        document.getElementById('id_quantity').addEventListener('change', function () {
             //calculate final price
             var print = calcTotalPrice()
             document.getElementById('totalPrice').innerHTML = "$ " + print
             //update how any breads can be ordered until capacity is reached
             var orderCount = document.getElementById('id_quantity').value
-            
+
             var newValue = maxDailyLeft - orderCount
             console.log(newValue)
-            if (newValue <0) {
-                document.getElementById('countInfo1').style.display ="none";
-                document.getElementById('countInfo2').style.display ="block";
+            if (newValue < 0) {
+                document.getElementById('countInfo1').style.display = "none";
+                document.getElementById('countInfo2').style.display = "block";
                 document.getElementById('countInfo2').innerHTML = "NOTE: Order exceeds daily capacity and will be placed for the next day."
                 document.getElementById('countInfo2').classList.add("alert-warning");
-                
+
             }
-            else{
-                document.getElementById('countInfo1').style.display ="block";
-                document.getElementById('countInfo2').style.display ="none";
+            else {
+                document.getElementById('countInfo1').style.display = "block";
+                document.getElementById('countInfo2').style.display = "none";
                 document.getElementById('maxDailyLeft').innerHTML = newValue
             }
         })
-           
-  
+
+
     })
 
-    function calcTotalPrice(){
+    function calcTotalPrice() {
         if (document.getElementById('id_price').value == '') {
             var cleanedPrice = document.getElementById('id_price').placeholder.substring(1)
         }
-        else
-        {
+        else {
             var cleanedPrice = document.getElementById('id_price').value.substring(1)
         }
-            
-            var quantity = document.getElementById('id_quantity').value
-            if (quantity == '') { quantity = 0 }
-            var totalPrice = parseFloat(cleanedPrice) * quantity
-            // console.log(cleanedPrice)
-            // console.log(quantity)
-            // console.log(totalPrice)
-            return totalPrice.toFixed(2)
-            
-        }
+
+        var quantity = document.getElementById('id_quantity').value
+        if (quantity == '') { quantity = 0 }
+        var totalPrice = parseFloat(cleanedPrice) * quantity
+        // console.log(cleanedPrice)
+        // console.log(quantity)
+        // console.log(totalPrice)
+        return totalPrice.toFixed(2)
+
+    }
 
 </script>
 
 <h2>Place Your Order</h2>
-
+<br>
 <form action="{% url 'placeorder' %}" method="post">
     {% csrf_token %}
-    <table class="table table-bordered">
-        <thead class="thead-light">
-            <tr>
-                <th class="text-center">Order Details </th>
-                <th class="text-center">Shipping Details </th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>
-                    <table style="margin-right: auto; margin-left: auto;">
-                        <tr>
-                            <td>
-                                <p style="float: right;">Bread Type: {{form.breadType}}</p>
-                            </td>
-                            <td>
-                                <p style="float: right;">Price: {{form.price}}</p>
-                            </td>
-                            <td>
-                                <p>Quantity: {{form.quantity}}</p>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td colspan="2">
-                                <p style="float: right;">Total Price: </p>
-                            </td>
-                            <td>
-                                <p style="text-align: center;" id="totalPrice"></p>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td colspan="3">
-                                <p>Leave your feedback here:</p>
-                                <p>{{form.comment}}</p>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td colspan="3">
-                                <p id="countInfo1">You can order <span id="maxDailyLeft" style="border-radius: 10px;  padding: 10px; background: rgb(187, 233, 173);">{{maxDailyLeft}}</span> breads until our daily capacity is reached.</p>
-                                <p id="countInfo2"></p>
-                            </td>
-                        </tr>
+    <div style="width: 100%; display: flex; flex-wrap: wrap;" class=" myCurrent">
+        <div style="border: 1px solid lightgray;  width: 500px;">
+            <div style="margin-bottom: 20px; padding: 10px; text-align: center; background: lightgray">
+                <h6>Order Details</h6>
+            </div>
+            <table style="margin-right: auto; margin-left: auto;">
+                <tr>
+                    <td>
+                        <p style="float: right;">Bread Type: {{form.breadType}}</p>
+                    </td>
+                    <td>
+                        <p style="float: right;">Price: {{form.price}}</p>
+                    </td>
+                    <td>
+                        <p>Quantity: {{form.quantity}}</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <p style="float: right;">Total Price: </p>
+                    </td>
+                    <td>
+                        <p style="text-align: center;" id="totalPrice"></p>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="3">
+                        <p>Leave your feedback here:</p>
+                        <p>{{form.comment}}</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="3">
+                        <p id="countInfo1">You can order <span id="maxDailyLeft"
+                                style="border-radius: 10px;  padding: 10px; background: rgb(187, 233, 173);">{{maxDailyLeft}}</span>
+                            breads until our daily capacity is reached.</p>
+                        <p id="countInfo2"></p>
+                    </td>
+                </tr>
 
-                    </table>
+            </table>
 
+        </div>
 
 
+        <div style="border: 1px solid lightgray; width: 500px;">
 
-                </td>
-                <td>
-                    <table style="margin-right: auto; margin-left: auto;">
-                        <tr>
-                            <td>
-                                <p style="float: right;">First Name: {{form.firstName}}</p>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <p style="float: right;">Last Name: {{form.lastName}}</p>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <p style="float: right;">City: {{form.city}}</p>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <p style="float: right;">Postal Code: {{form.postCode}}</p>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <p style="float: right;">Address Line 1: {{form.addressL1}}</p>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <p style="float: right;">Address Line 2: {{form.addressL2}}</p>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <p style="float: right;">Telephone Number: {{form.tel}}</p>
-                            </td>
-                        </tr>
-                    </table>
-                </td>
+            <div style="margin-bottom: 20px; padding: 10px; text-align: center; background: lightgray">
+                <h6>Shipping Details</h6>
+            </div>
+            <table style="margin-right: auto; margin-left: auto;">
+                <tr>
+                    <td>
+                        <p style="float: right;">First Name: {{form.firstName}}</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <p style="float: right;">Last Name: {{form.lastName}}</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <p style="float: right;">City: {{form.city}}</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <p style="float: right;">Postal Code: {{form.postCode}}</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <p style="float: right;">Address Line 1: {{form.addressL1}}</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <p style="float: right;">Address Line 2: {{form.addressL2}}</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <p style="float: right;">Telephone Number: {{form.tel}}</p>
+                    </td>
+                </tr>
+            </table>
 
-            </tr>
+        </div>
+    </div>
+    <input style="margin-top: 10px;" type="submit" value="Order Now">
 
 
-
-        </tbody>
-    </table>
-
-    <input type="submit" value="Order Now">
-
-    
 </form>
 
 {% endblock %}

@@ -12,7 +12,7 @@ from django import template
 import collections
 register = template.Library()
 
-from bakery.forms import PlaceOrderForm
+from bakery.forms import EditForm, PlaceOrderForm
 
 from .models import User, Orders
 
@@ -230,5 +230,25 @@ def myorders(request):
         
         })
 
-#register = template.Library()
+def edit(request, id):
+    if request.method == 'POST':
+        form = EditForm(request.POST)
+    else:
+        editData = Orders.objects.get(pk=id)
+        form = EditForm(initial=
+        {'quantity': editData.quantity,
+        'breadType':editData.breadType,
+        'price': editData.price
+        
+        })
+
+    return render(request, "bakery/edit.html", {
+        
+        "orders": Orders.objects.filter(owner = request.user).all(),
+        "id": id,
+        "form": form,
+        "user": request.user,
+        
+        
+        })
 
