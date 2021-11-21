@@ -24,7 +24,7 @@ class PlaceOrderForm(forms.Form):
     addressL1 = forms.CharField(label='Address Line 1', max_length=64, required=True)
     addressL2 = forms.CharField(label='Address Line 2', max_length=64, required=False)
     tel = forms.IntegerField(label='Telephone Number', max_value=9999999999, required=True)
-    comment = forms.CharField(label='Comment', max_length=256, required=False, widget=forms.Textarea(attrs={'cols': 50, 'rows': 2}))
+    comment = forms.CharField(label='Comment', max_length=256, required=False)
     #price = forms.FloatField(required=True, widget=forms.TextInput(attrs={'placeholder': '$3.5', 'size': 3, 'readonly': True}))
     price = forms.CharField(required=True, widget=forms.TextInput(attrs={'placeholder': '$3.5', 'size': 3, 'readonly': True}))
     
