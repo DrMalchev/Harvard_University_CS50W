@@ -27,7 +27,8 @@
 </script>
 
 <h2>My Current Orders</h2>
-
+{{thisDate}}
+{{obj}}
 <div style="width: 100%; display: flex; flex-wrap: wrap;" class=" myCurrent">
     {% for order in orders %}
     <div style="width: 300px; background: rgb(221, 228, 221); border-radius: 10px; padding: 10px; margin: 5px;">
@@ -45,7 +46,7 @@
         </div>
         <hr>
         <div>
-            <a id=e{{order.id}} href="edit/{{order.pk}}">Edit</a> | <a id=d{{order.id}} href="">Delete</a>
+            <a id=e{{order.id}} href="edit/{{order.pk}}">Edit</a> | <a id=d{{order.id}} href="delete/{{order.pk}}">Delete</a>
         </div>
 
     </div>

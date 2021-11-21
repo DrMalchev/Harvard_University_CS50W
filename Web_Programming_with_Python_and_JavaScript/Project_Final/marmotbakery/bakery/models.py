@@ -34,6 +34,7 @@ class Orders(models.Model):
     price = models.CharField(default=0, max_length=64)
     orderTime = models.DateTimeField(default=datetime.datetime.now)
     cumulative = models.IntegerField(default=0)
+    cumulativeMax = models.IntegerField(default=0)
     brake = models.BooleanField(default=False)
     deliveryTime = models.DateTimeField(default=datetime.datetime.now)
     processed = models.IntegerField(default=0, null=False)
