@@ -6,29 +6,59 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
 
+        // metrics
         //
         var maxId = [];
         var pMetrics = document.querySelectorAll(".myMetricsP");
         //get bread with max count
-        pMetrics.forEach(function(item) {maxId.push(item.id);})
+        pMetrics.forEach(function (item) { maxId.push(item.id); })
         var maxWidth = Math.max.apply(Math, maxId);
         console.log(maxWidth)
         //iterate over all p and change width
         //max width is 50%
-        pMetrics.forEach(function(item) {
-            var pWidth = 50*item.id/maxWidth;
-            
-            item.style.width = pWidth+"%";
-            
-           // console.log(pWidth)
+        pMetrics.forEach(function (item) {
+            var pWidth = 50 * item.id / maxWidth;
+
+            item.style.width = pWidth + "%";
         })
+        //
+        // prohibit editing of oder is processed
+        //
+        var dates = document.getElementsByClassName("date")
+        Array.prototype.forEach.call(dates, function (date) {
+            var id = date.id
+            var endDate = new Date(document.getElementById(id).innerHTML)
+            endDate.setDate(endDate.getDate()-2);
+            endDate.setHours(21);
+            endDate.setMinutes(00);
+            endDate.setSeconds(00);
+            console.log(date.id)
+            if ( new Date() > endDate  ) {
+                var editId = 'e'+id.substring(5);
+                var deleteId = 'd'+id.substring(5) ;
+                
+                document.getElementById(editId).innerHTML=""; 
+                document.getElementById(deleteId).innerHTML=""; 
+                var processedId = "processed" + editId.substring(1);
+                console.log(processedId)
+                var proocessedSpan = document.getElementById(processedId);
+                proocessedSpan.innerHTML = "PROCESSED"+" ✅"
+                    proocessedSpan.style.color = "Green";
+            }
+
+        })
+
+
+
+
 
     })
 </script>
 
 <h2>My Current Orders</h2>
-{{thisDate}}
-{{obj}}
+<p>You can edit or delete orders. However please note that once your order is processed it cannot be changed any more.
+    The reason for this is that processed orders are calculated in the daily sourdough quantity and deleting them would
+    mean that food is going to be wasted. </p>
 <div style="width: 100%; display: flex; flex-wrap: wrap;" class=" myCurrent">
     {% for order in orders %}
     <div style="width: 300px; background: rgb(221, 228, 221); border-radius: 10px; padding: 10px; margin: 5px;">
@@ -36,7 +66,8 @@
         <hr>
         <div>
             <p style="margin: 5px 0;">Quantity: {{order.quantity}}</p>
-            <p style="margin: 5px 0;">Delivery Date: {{order.deliveryTime.date}}</p>
+            <p style="margin: 5px 0;">Delivery Date: <span class="date"
+                    id="date_{{order.id}}">{{order.deliveryTime.date}}</span></p>
             <p style="margin: 5px 0;">Price per item: {{order.price}}</p>
 
 
@@ -46,7 +77,9 @@
         </div>
         <hr>
         <div>
-            <a id=e{{order.id}} href="edit/{{order.pk}}">Edit</a> | <a id=d{{order.id}} href="delete/{{order.pk}}">Delete</a>
+            <a id=e{{order.id}} href="edit/{{order.pk}}">Edit</a> | <a id=d{{order.id}}
+                href="delete/{{order.pk}}">Delete</a>
+                <span id=processed{{order.id}}></span>
         </div>
 
     </div>
@@ -66,7 +99,8 @@
         {% for key, value in summaryByType %}
 
         <div id=myMetrics>
-            <p class = "myMetricsP" id="{{value}}"><span>{{key}}: </span> <span class = "myMetricsS"  style="float: right;">{{value}} </span></p>
+            <p class="myMetricsP" id="{{value}}"><span>{{key}}: </span> <span class="myMetricsS"
+                    style="float: right;">{{value}} </span></p>
         </div>
 
 
@@ -86,11 +120,14 @@
     </thead>
     <tbody>
         {% if ordersHistory.count == 0%}
-            <tr> <td colspan="5">Currently there are no orders in the history. Data will be available here once your orders are delivered.  </td> </tr>
+        <tr>
+            <td colspan="5">Currently there are no orders in the history. Data will be available here once your orders
+                are delivered. </td>
+        </tr>
         {% endif %}
-        
+
         {% for order in ordersHistory %}
-        
+
         <tr>
             <td>{{order.deliveryTime.date}}</td>
             <td>{{order.breadType}}</td>

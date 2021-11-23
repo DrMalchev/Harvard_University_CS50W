@@ -83,6 +83,13 @@ def placeorder(request):
             if Orders.objects.all().count() == 0:
                 cumuTemp = 0
                 lastDeliveryDate = datetime.now().date() + timedelta(days=2)
+            elif Orders.objects.all().count() is not 0 and Orders.objects.order_by(
+                #if user has not ordered bread for 2-3 days. but it is not empty db so app gets lastdate
+                #from db and ques. but we need 2 days to deliver, so it should be corrected with +2 days
+                    '-deliveryTime').latest('deliveryTime').deliveryTime.date() < datetime.now().date() + timedelta(days=2):
+                lastDeliveryDate = datetime.now().date() + timedelta(days=2)
+                cumuTemp = Orders.objects.filter(processed=0).aggregate(
+                    Sum('quantity'))['quantity__sum']
             else:
                 cumuTemp = Orders.objects.filter(processed=0).aggregate(
                     Sum('quantity'))['quantity__sum']
@@ -295,7 +302,7 @@ def edit(request, id):
 
         return render(request, "bakery/edit.html", {
             "allowedAdditional": allowedAdditional,
-            "orders": Orders.objects.filter(owner=request.user).all(),
+            "orders": Orders.objects.filter(owner=request.user, deliveryTime__gte=datetime.now()).all(),
             "id": id,
             "form": form,
             "user": request.user,
