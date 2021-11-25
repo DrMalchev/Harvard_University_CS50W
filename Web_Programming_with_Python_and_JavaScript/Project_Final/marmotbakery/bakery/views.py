@@ -223,7 +223,7 @@ def waitlist(request):
 def myorders(request):
 
     summaryByType = {}
-    if Orders.objects.all().count() != 0:
+    if Orders.objects.filter(owner=request.user).all().count() != 0:
         for order in Orders.objects.filter(owner=request.user):
             if order.breadType in summaryByType:
                 summaryByType[order.breadType] = order.quantity + \

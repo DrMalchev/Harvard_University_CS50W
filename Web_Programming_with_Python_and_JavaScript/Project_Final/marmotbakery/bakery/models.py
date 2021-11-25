@@ -4,6 +4,8 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.conf import settings
 
+from bakery.forms import UserCreationForm
+
 
 class User(AbstractUser):
     pass
@@ -40,3 +42,14 @@ class Orders(models.Model):
     processed = models.IntegerField(default=0, null=False)
     active = models.BooleanField(default=False)
 
+###
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+
+class UserAdmin(BaseUserAdmin):
+    add_form = UserCreationForm
+    add_fieldsets = (
+        (None, {
+            'classes': ('wide',),
+            'fields': ('email', 'first_name', 'last_name', 'is_bot_flag', 'password1', 'password2')}
+        ),
+    )
