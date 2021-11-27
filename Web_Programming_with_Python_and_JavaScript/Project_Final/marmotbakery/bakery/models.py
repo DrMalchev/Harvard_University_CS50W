@@ -8,6 +8,8 @@ from bakery.forms import UserCreationForm
 
 
 class User(AbstractUser):
+    def __str__(self):
+        return f"{self.username} | {self.first_name} {self.last_name}"
     pass
 
 class Orders(models.Model):
@@ -42,6 +44,8 @@ class Orders(models.Model):
     processed = models.IntegerField(default=0, null=False)
     active = models.BooleanField(default=False)
 
+    def __str__(self):
+        return f"{self.owner} >> {self.breadType} | {self.quantity}x | Delivery: {self.deliveryTime.date()}"
 ###
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 

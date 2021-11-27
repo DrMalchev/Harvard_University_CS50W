@@ -60,6 +60,9 @@
     The reason for this is that processed orders are calculated in the daily sourdough quantity and deleting them would
     mean that food is going to be wasted. </p>
 <div style="width: 100%; display: flex; flex-wrap: wrap;" class=" myCurrent">
+    {%if not orders%}
+    <h4 style="background: orange; padding: 10px;">You currently don't have any orders.</h4>
+    {%endif%}
     {% for order in orders %}
     <div style="width: 300px; background: rgb(221, 228, 221); border-radius: 10px; padding: 10px; margin: 5px;">
         <h3>{{order.breadType}}</h3>

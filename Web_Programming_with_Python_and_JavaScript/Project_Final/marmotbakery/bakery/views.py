@@ -13,6 +13,7 @@ from django.db.models import Count
 from django import template
 import collections
 register = template.Library()
+from collections import defaultdict
 
 
 def index(request):
@@ -99,6 +100,11 @@ def placeorder(request):
             check = 10  # max daily capacity
             deliveryOn = lastDeliveryDate
             # check if daily orders exceed capacity of 10 and reshedule for day + 1
+            #
+            # special case, bug fix: no orders, user makes first order, then deletes it. cumuTemp is now None
+            # and has to be corrected to zero again
+            if cumuTemp is None:
+                cumuTemp=0
             if cumuTemp >= check:
                 cumuTemp = 0
 
@@ -334,3 +340,45 @@ def delete(request, id):
         Orders.objects.filter(pk=orderD.pk).update(cumulative=updateCumu)
     Orders.objects.filter(pk=id).delete()
     return HttpResponseRedirect(reverse("myorders"))
+
+def taskmanager(request):
+    # dailyTasks is a dictionary, key = date, value = Object<summary = dictionary<breadType, count>, orders = List(Orders)>
+    # 
+    class ordersAndSummary:
+        orders = []
+        summary = {}
+    todoOrders = Orders.objects.filter(deliveryTime__gte=  datetime.now().date())
+    todoDates = set()
+    dailyTasks = {}
+    for order in todoOrders:
+        todoDates.add(order.deliveryTime.date()- timedelta(days=2))
+    todoDates = list(todoDates)
+    #
+    #
+    for date in todoDates:
+        newOrdersAndSummary = ordersAndSummary()
+        dailySummaryBread = {}
+        for order in Orders.objects.filter(deliveryTime =  date + timedelta(days=2)):
+            if order.breadType in dailySummaryBread:
+                countTemp = dailySummaryBread[order.breadType]
+                dailySummaryBread[order.breadType]=order.quantity+countTemp
+            else:
+                dailySummaryBread[order.breadType]=order.quantity
+        newOrdersAndSummary.summary=dailySummaryBread
+        newOrdersAndSummary.orders =Orders.objects.filter(deliveryTime =  date + timedelta(days=2))
+        dailyTasks[date] = newOrdersAndSummary
+    
+    
+    
+    return render(request, "bakery/taskmanager.html", {
+        "todoOrders": todoOrders,
+        "todoDates": todoDates,
+        "dailyTasks":dailyTasks,
+
+    })
+
+def metrics(request):
+    return render(request, "bakery/metrics.html", {})
+
+def blogadmin(request):
+    return render(request, "bakery/blogadmin.html", {})

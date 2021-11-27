@@ -12,5 +12,8 @@ urlpatterns = [
     path("waitlist", views.waitlist, name="waitlist"),
     path("edit/<int:id>", views.edit, name="edit"),
     path("delete/<int:id>", views.delete, name="delete"),
+    path("taskmanager", views.taskmanager, name="taskmanager"),
+    path("metrics", views.metrics, name="metrics"),
+    path("blogadmin", views.blogadmin, name="blogadmin")
 ]
 
