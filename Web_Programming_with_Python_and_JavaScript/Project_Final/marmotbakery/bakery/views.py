@@ -84,10 +84,9 @@ def placeorder(request):
             if Orders.objects.all().count() == 0:
                 cumuTemp = 0
                 lastDeliveryDate = datetime.now().date() + timedelta(days=2)
-            elif Orders.objects.all().count() is not 0 and Orders.objects.order_by(
                 #if user has not ordered bread for 2-3 days. but it is not empty db so app gets lastdate
                 #from db and ques. but we need 2 days to deliver, so it should be corrected with +2 days
-                    '-deliveryTime').latest('deliveryTime').deliveryTime.date() < datetime.now().date() + timedelta(days=2):
+            elif Orders.objects.all().count() is not 0 and Orders.objects.order_by('-deliveryTime').latest('deliveryTime').deliveryTime.date() < datetime.now().date() + timedelta(days=2):
                 lastDeliveryDate = datetime.now().date() + timedelta(days=2)
                 cumuTemp = Orders.objects.filter(processed=0).aggregate(
                     Sum('quantity'))['quantity__sum']
@@ -102,12 +101,12 @@ def placeorder(request):
             # check if daily orders exceed capacity of 10 and reshedule for day + 1
             #
             # special case, bug fix: no orders, user makes first order, then deletes it. cumuTemp is now None
-            # and has to be corrected to zero again
+            # and has to be corrected to the last cummulative value
             if cumuTemp is None:
-                cumuTemp=0
+                cumuTemp=Orders.objects.last().cumulative
+
             if cumuTemp >= check:
                 cumuTemp = 0
-
                 Orders.objects.all().update(processed=1)
                 deliveryOn = lastDeliveryDate + timedelta(days=1)
 
@@ -122,6 +121,8 @@ def placeorder(request):
             if Orders.objects.all().count() != 0:
                 lastDeliveryDate2 = Orders.objects.order_by(
                     "-id").values("deliveryTime").first()["deliveryTime"].date()
+                Orders.objects.all().update(processed=1)
+                
                 if datetime.now().hour > 21 and lastDeliveryDate2 > datetime.now().date() + timedelta(days=2):
                     if Orders.objects.order_by('-deliveryTime').latest('processed').processed == 1:
                         deliveryOn = lastDeliveryDate
@@ -129,6 +130,7 @@ def placeorder(request):
                         deliveryOn = lastDeliveryDate + timedelta(days=1)
                         Orders.objects.all().update(processed=1)
                         cumuTemp = 0
+                
 
             # special case when user orders more than 1 bread and exceeds the capacity of 10
             # therefore the cumulative value and the delivery date have to be corrected
