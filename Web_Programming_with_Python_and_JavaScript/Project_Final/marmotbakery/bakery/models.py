@@ -8,8 +8,9 @@ from bakery.forms import UserCreationForm
 
 
 class User(AbstractUser):
+    cancelations = models.IntegerField(default=0, null=False)
     def __str__(self):
-        return f"{self.username} | {self.first_name} {self.last_name}"
+        return f"{self.username}  {self.first_name} {self.last_name}"
     pass
 
 class Orders(models.Model):

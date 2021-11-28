@@ -305,21 +305,21 @@ def edit(request, id):
         maxCumuForDeliveryDate = Orders.objects.filter(
             deliveryTime=thisDeliveryDate).order_by('pk').last().cumulative
         allowedAdditional = 10-maxCumuForDeliveryDate
-
+                
         return render(request, "bakery/edit.html", {
             "allowedAdditional": allowedAdditional,
             "orders": Orders.objects.filter(owner=request.user, deliveryTime__gte=datetime.now()).all(),
             "id": id,
             "form": form,
-            "user": request.user,
-
-
-        })
+            "user": request.user
+            
+           })
 
 
 def delete(request, id):
-    # TODO
+    # 
     # forbid deleteion of orders that are processed
+    # done in the front end with JS
 
     # get the quantity of the deleted order
     # Note: it also affects all orders from that day
@@ -338,7 +338,14 @@ def delete(request, id):
         currentOrderCumu = Orders.objects.get(pk=orderD.pk).cumulative
         updateCumu = currentOrderCumu - deletedQuantity
         Orders.objects.filter(pk=orderD.pk).update(cumulative=updateCumu)
+    #
+    # add one cancelation point for this user
+    # to be used in admin metrics
+    for user in User.objects.filter(username__iexact=request.user.username):
+        user.cancelations+=1
+        user.save()
     Orders.objects.filter(pk=id).delete()
+    
     return HttpResponseRedirect(reverse("myorders"))
 
 def taskmanager(request):
@@ -347,7 +354,7 @@ def taskmanager(request):
     class ordersAndSummary:
         orders = []
         summary = {}
-    todoOrders = Orders.objects.filter(deliveryTime__gte=  datetime.now().date())
+    todoOrders = Orders.objects.filter(deliveryTime__gte=  datetime.now().date()+ timedelta(days=2))
     todoDates = set()
     dailyTasks = {}
     for order in todoOrders:
@@ -378,7 +385,25 @@ def taskmanager(request):
     })
 
 def metrics(request):
-    return render(request, "bakery/metrics.html", {})
+    # calculate total number of orders for every user
+    #
+    userMetrics = {}
+    for user in User.objects.filter(is_superuser=False).all():
+        # sum bread orders for evry user
+        # sum cancelations for every user
+        #
+        totalOrders = Orders.objects.filter(owner=user).aggregate(Sum('quantity'))['quantity__sum']
+        if totalOrders == None:
+            totalOrders = 0
+        canc = user.cancelations
+        if canc == None:
+            canc = 0
+        dictValues = [totalOrders, canc]
+        userMetrics[user]=dictValues
+
+    return render(request, "bakery/metrics.html", {
+        "users": userMetrics
+    })
 
 def blogadmin(request):
     return render(request, "bakery/blogadmin.html", {})
