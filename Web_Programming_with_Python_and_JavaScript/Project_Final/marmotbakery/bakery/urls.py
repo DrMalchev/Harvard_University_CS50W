@@ -1,5 +1,7 @@
 from django.urls import path
 from . import views
+from django.conf import settings 
+from django.conf.urls.static import static 
 
 
 urlpatterns = [
@@ -14,6 +16,9 @@ urlpatterns = [
     path("delete/<int:id>", views.delete, name="delete"),
     path("taskmanager", views.taskmanager, name="taskmanager"),
     path("metrics", views.metrics, name="metrics"),
-    path("blogadmin", views.blogadmin, name="blogadmin")
-]
+    path("blogadmin", views.blogadmin, name="blogadmin"),
+    path("deleteuser/<int:id>", views.deleteuser, name="deleteuser"),
+    path("blog", views.blog, name="blog"),
+    path("fileupload", views.fileupload, name="fileupload"),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

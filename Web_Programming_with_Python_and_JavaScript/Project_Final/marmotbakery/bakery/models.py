@@ -3,6 +3,7 @@ import datetime
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.conf import settings
+from django.core.files.storage import FileSystemStorage
 
 from bakery.forms import UserCreationForm
 
@@ -58,3 +59,23 @@ class UserAdmin(BaseUserAdmin):
             'fields': ('email', 'first_name', 'last_name', 'is_bot_flag', 'password1', 'password2')}
         ),
     )
+
+from django.conf import settings
+class Image(models.Model):
+    file = models.FileField(upload_to='', null=True, blank=True)
+    filepath = models.CharField(null=True,max_length=999)
+    filename = models.CharField(null=True, max_length=256)
+
+class Blog(models.Model):
+    title = models.CharField(null=True, max_length=256)
+    content1 = models.CharField(null=True, max_length=999)
+    content2 = models.CharField(null=True, max_length=999)
+    content3 = models.CharField(null=True, max_length=999)
+    content4 = models.CharField(null=True, max_length=999)
+    content5 = models.CharField(null=True, max_length=999)
+    url1 = models.CharField(null=True, max_length=256)
+    url2 = models.CharField(null=True, max_length=256)
+    url3 = models.CharField(null=True, max_length=256)
+    url4 = models.CharField(null=True, max_length=256)
+    url5 = models.CharField(null=True, max_length=256)
+    contentmap = models.CharField(null=True, max_length=256)

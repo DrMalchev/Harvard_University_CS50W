@@ -59,3 +59,7 @@ class UserCreationForm(forms.ModelForm):
             user.save()
         return user
 
+
+class FileForm(forms.Form):
+    file = forms.FileField()
+

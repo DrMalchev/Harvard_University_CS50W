@@ -1,6 +1,11 @@
 
-from .models import User, Orders
-from bakery.forms import EditForm, PlaceOrderForm
+from django.template.context_processors import csrf
+from django.contrib.auth.decorators import user_passes_test
+from collections import OrderedDict
+from collections import defaultdict
+import json
+from .models import Blog, User, Orders, Image
+from bakery.forms import EditForm, PlaceOrderForm, FileForm
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.db.models.aggregates import Sum
@@ -13,7 +18,6 @@ from django.db.models import Count
 from django import template
 import collections
 register = template.Library()
-from collections import defaultdict
 
 
 def index(request):
@@ -84,8 +88,8 @@ def placeorder(request):
             if Orders.objects.all().count() == 0:
                 cumuTemp = 0
                 lastDeliveryDate = datetime.now().date() + timedelta(days=2)
-                #if user has not ordered bread for 2-3 days. but it is not empty db so app gets lastdate
-                #from db and ques. but we need 2 days to deliver, so it should be corrected with +2 days
+                # if user has not ordered bread for 2-3 days. but it is not empty db so app gets lastdate
+                # from db and ques. but we need 2 days to deliver, so it should be corrected with +2 days
             elif Orders.objects.all().count() is not 0 and Orders.objects.order_by('-deliveryTime').latest('deliveryTime').deliveryTime.date() < datetime.now().date() + timedelta(days=2):
                 lastDeliveryDate = datetime.now().date() + timedelta(days=2)
                 cumuTemp = Orders.objects.filter(processed=0).aggregate(
@@ -103,7 +107,7 @@ def placeorder(request):
             # special case, bug fix: no orders, user makes first order, then deletes it. cumuTemp is now None
             # and has to be corrected to the last cummulative value
             if cumuTemp is None:
-                cumuTemp=Orders.objects.last().cumulative
+                cumuTemp = Orders.objects.last().cumulative
 
             if cumuTemp >= check:
                 cumuTemp = 0
@@ -122,7 +126,7 @@ def placeorder(request):
                 lastDeliveryDate2 = Orders.objects.order_by(
                     "-id").values("deliveryTime").first()["deliveryTime"].date()
                 Orders.objects.all().update(processed=1)
-                
+
                 if datetime.now().hour > 21 and lastDeliveryDate2 > datetime.now().date() + timedelta(days=2):
                     if Orders.objects.order_by('-deliveryTime').latest('processed').processed == 1:
                         deliveryOn = lastDeliveryDate
@@ -130,7 +134,6 @@ def placeorder(request):
                         deliveryOn = lastDeliveryDate + timedelta(days=1)
                         Orders.objects.all().update(processed=1)
                         cumuTemp = 0
-                
 
             # special case when user orders more than 1 bread and exceeds the capacity of 10
             # therefore the cumulative value and the delivery date have to be corrected
@@ -213,7 +216,7 @@ def waitlist(request):
         "-id").values("deliveryTime").first()["deliveryTime"].date()
     # test case if a bread should be acepted
     # placed in this section just to check results in the template
-    #ifAccepted = False
+    # ifAccepted = False
     # if lastDeliveryDate > datetime.now().date() + timedelta(days = 2):
     #    ifAccepted = True
     return render(request, "bakery/waitlist.html", {
@@ -228,6 +231,7 @@ def waitlist(request):
     })
 
 
+@login_required
 def myorders(request):
 
     summaryByType = {}
@@ -240,7 +244,7 @@ def myorders(request):
                 summaryByType[order.breadType] = order.quantity
         today = datetime.today()
         mostOrdered = max(summaryByType, key=summaryByType.get)
-        #sorted(summaryByType.items(), key=lambda x: x[1], reverse=True)
+        # sorted(summaryByType.items(), key=lambda x: x[1], reverse=True)
         return render(request, "bakery/myorders.html", {
             "summaryByType": sorted(summaryByType.items(), key=lambda x: x[1], reverse=True),
             "orders": Orders.objects.filter(owner=request.user, deliveryTime__gte=today).all(),
@@ -255,8 +259,9 @@ def myorders(request):
         return render(request, "bakery/myorders.html", {})
 
 
+@login_required
 def edit(request, id):
-    # TODO
+    #
     # forbid editing of orders that are processed
     #
     if request.method == 'POST':
@@ -273,7 +278,7 @@ def edit(request, id):
                 breadType=form.cleaned_data['breadType'],
                 quantity=form.cleaned_data['quantity'],
                 price=form.cleaned_data['price'],
-                #cumulative = newCumulative
+                # cumulative = newCumulative
                 # cumulative is updated bellow and must not be changed here
             )
             # update cumulative index of all other orders from that day
@@ -307,26 +312,27 @@ def edit(request, id):
         maxCumuForDeliveryDate = Orders.objects.filter(
             deliveryTime=thisDeliveryDate).order_by('pk').last().cumulative
         allowedAdditional = 10-maxCumuForDeliveryDate
-                
+
         return render(request, "bakery/edit.html", {
             "allowedAdditional": allowedAdditional,
             "orders": Orders.objects.filter(owner=request.user, deliveryTime__gte=datetime.now()).all(),
             "id": id,
             "form": form,
             "user": request.user
-            
+
            })
 
 
+@login_required
 def delete(request, id):
-    # 
+    #
     # forbid deleteion of orders that are processed
     # done in the front end with JS
 
     # get the quantity of the deleted order
     # Note: it also affects all orders from that day
     deletedQuantity = Orders.objects.get(pk=id).quantity
-    
+
     # update cumulative index of all other orders from that day
     # special case:
     # ONLY orders older that the deleted are affected and should be updated
@@ -334,7 +340,7 @@ def delete(request, id):
     #
     # get the date
     thisDate = Orders.objects.get(pk=id).deliveryTime.date()
-    
+
     for orderD in Orders.objects.filter(deliveryTime=thisDate, pk__gt=id).all():
         # get current cumulative
         currentOrderCumu = Orders.objects.get(pk=orderD.pk).cumulative
@@ -344,48 +350,52 @@ def delete(request, id):
     # add one cancelation point for this user
     # to be used in admin metrics
     for user in User.objects.filter(username__iexact=request.user.username):
-        user.cancelations+=1
+        user.cancelations += 1
         user.save()
     Orders.objects.filter(pk=id).delete()
-    
+
     return HttpResponseRedirect(reverse("myorders"))
 
+
+@user_passes_test(lambda u: u.is_superuser)
 def taskmanager(request):
     # dailyTasks is a dictionary, key = date, value = Object<summary = dictionary<breadType, count>, orders = List(Orders)>
-    # 
+    #
     class ordersAndSummary:
         orders = []
         summary = {}
-    todoOrders = Orders.objects.filter(deliveryTime__gte=  datetime.now().date()+ timedelta(days=2))
+    todoOrders = Orders.objects.filter(
+        deliveryTime__gte=datetime.now().date() + timedelta(days=2))
     todoDates = set()
     dailyTasks = {}
     for order in todoOrders:
-        todoDates.add(order.deliveryTime.date()- timedelta(days=2))
+        todoDates.add(order.deliveryTime.date() - timedelta(days=2))
     todoDates = list(todoDates)
     #
     #
     for date in todoDates:
         newOrdersAndSummary = ordersAndSummary()
         dailySummaryBread = {}
-        for order in Orders.objects.filter(deliveryTime =  date + timedelta(days=2)):
+        for order in Orders.objects.filter(deliveryTime=date + timedelta(days=2)):
             if order.breadType in dailySummaryBread:
                 countTemp = dailySummaryBread[order.breadType]
-                dailySummaryBread[order.breadType]=order.quantity+countTemp
+                dailySummaryBread[order.breadType] = order.quantity+countTemp
             else:
-                dailySummaryBread[order.breadType]=order.quantity
-        newOrdersAndSummary.summary=dailySummaryBread
-        newOrdersAndSummary.orders =Orders.objects.filter(deliveryTime =  date + timedelta(days=2))
+                dailySummaryBread[order.breadType] = order.quantity
+        newOrdersAndSummary.summary = dailySummaryBread
+        newOrdersAndSummary.orders = Orders.objects.filter(
+            deliveryTime=date + timedelta(days=2))
         dailyTasks[date] = newOrdersAndSummary
-    
-    
-    
+
     return render(request, "bakery/taskmanager.html", {
         "todoOrders": todoOrders,
         "todoDates": todoDates,
-        "dailyTasks":dailyTasks,
+        "dailyTasks": dailyTasks,
 
     })
 
+
+@user_passes_test(lambda u: u.is_superuser)
 def metrics(request):
     # calculate total number of orders for every user
     #
@@ -394,18 +404,98 @@ def metrics(request):
         # sum bread orders for evry user
         # sum cancelations for every user
         #
-        totalOrders = Orders.objects.filter(owner=user).aggregate(Sum('quantity'))['quantity__sum']
+        totalOrders = Orders.objects.filter(owner=user).aggregate(
+            Sum('quantity'))['quantity__sum']
         if totalOrders == None:
             totalOrders = 0
         canc = user.cancelations
         if canc == None:
             canc = 0
         dictValues = [totalOrders, canc]
-        userMetrics[user]=dictValues
+        userMetrics[user] = dictValues
+    #
+    # Order metrics
+    #
+    # get all orders by bread type
+    #
+    thisOrders = {}
+    for order in Orders.objects.all():
+        if order.breadType in thisOrders:
+            thisOrders[order.breadType] = order.quantity + \
+                thisOrders[order.breadType]
+        else:
+            thisOrders[order.breadType] = order.quantity
+    thisOrders = OrderedDict(
+        sorted(thisOrders.items(), key=lambda k: k[1], reverse=True))
+    #
+    # get all orders for the current month
+    #
+    currentMonth = datetime.now().strftime("%B")
+    currentOrders = {}
+    for order in Orders.objects.filter(orderTime__month=datetime.now().month):
+        if order.breadType in currentOrders:
+            currentOrders[order.breadType] = order.quantity + \
+                currentOrders[order.breadType]
+        else:
+            currentOrders[order.breadType] = order.quantity
+    currentOrders = OrderedDict(
+        sorted(currentOrders.items(), key=lambda k: k[1], reverse=True))
 
     return render(request, "bakery/metrics.html", {
-        "users": userMetrics
+        "users": userMetrics,
+        "thisOrders": thisOrders,
+        "currentOrders": currentOrders,
+        "currentMonth": currentMonth
     })
 
+
+@user_passes_test(lambda u: u.is_superuser)
 def blogadmin(request):
-    return render(request, "bakery/blogadmin.html", {})
+    
+    if Blog.objects.all():
+        return render(request, "bakery/blogadmin.html", {
+            "blog": Image.objects.all(),
+            })
+    else:
+        return render(request, "bakery/blogadmin.html", {
+            "blog": Image.objects.all(),
+            "id": 0
+            })
+
+
+@user_passes_test(lambda u: u.is_superuser)
+def deleteuser(request, id):
+    # get data from JS fetch POST
+    #
+
+    User.objects.filter(pk=id).delete()
+    return HttpResponseRedirect(reverse("metrics"))
+
+
+def blog(request):
+    return render(request, "bakery/blog.html", {
+        "blog": Image.objects.all(),
+        })
+    
+
+
+def fileupload(request):
+    if request.method == 'POST':
+        form = FileForm(request.POST, request.FILES)
+        if form.is_valid():
+            initial_obj= Image(file = request.FILES['file'])
+            initial_obj.filename = initial_obj.file.name
+            initial_obj.filepath = initial_obj.file.url
+            initial_obj.save()
+            
+            return render(request, 'blogadmin', {
+        'form': form
+    })
+    else:
+        form = FileForm()
+    return render(request, 'bakery/fileupload.html', {
+        'form': form
+    })
+
+def blogentry(request, id):
+    pass

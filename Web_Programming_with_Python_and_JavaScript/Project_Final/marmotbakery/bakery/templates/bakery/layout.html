@@ -12,11 +12,11 @@
     <link href="{% static 'bakery/styles.css' %}" rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    
+
 
     <script src="{% static 'bakery/mySort.js' %}"></script>
-    
-    
+
+
 </head>
 
 <body>
@@ -48,6 +48,9 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'waitlist' %}">Waitlist</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'blog' %}">Blog</a>
+                    </li>
 
 
                     {% if user.is_authenticated %}
@@ -61,16 +64,16 @@
                     </li>
                     {%endif%}
                     {% if user.is_superuser%}
-
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'blogadmin' %}">Blog Admin</a>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'taskmanager' %}">Task Manager</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'metrics' %}">Metrics</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'blogadmin' %}">Blog Admin</a>
-                    </li>
+
 
                     {% endif %}
                 </ul>

@@ -2,6 +2,10 @@
 
 {% block body %}
     <h2>Our Bread</h2>
-
-   
+    {%for item in blog%}
+    
+   <img src=" {{item.filepath}}" alt="{{item.filename}}"> 
+        {%endfor%}
+        
+        
 {% endblock %}

@@ -121,4 +121,10 @@ USE_TZ = True
 
 STATIC_URL = '/static/bakery/'
 
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media') # 'media' is my folder by Django convention
+MEDIA_URL = '/media/'
 
+context_processors = [
+    'django.template.context_processors.media', # set this explicitly
+    
+]
