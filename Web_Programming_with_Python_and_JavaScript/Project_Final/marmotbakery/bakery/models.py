@@ -1,9 +1,11 @@
 
 import datetime
+from typing_extensions import Concatenate
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
+from django.conf import settings
 
 from bakery.forms import UserCreationForm
 
@@ -59,23 +61,19 @@ class UserAdmin(BaseUserAdmin):
             'fields': ('email', 'first_name', 'last_name', 'is_bot_flag', 'password1', 'password2')}
         ),
     )
+class Content(models.Model):
+    content = models.CharField(null=True, max_length=999)
+    blogid = models.IntegerField(default=0, null=False)
+    number = models.IntegerField(default=0, null=False)
 
-from django.conf import settings
 class Image(models.Model):
     file = models.FileField(upload_to='', null=True, blank=True)
     filepath = models.CharField(null=True,max_length=999)
     filename = models.CharField(null=True, max_length=256)
+    blogid = models.IntegerField(default=0, null=False)
+    number = models.IntegerField(default=0, null=False)
 
 class Blog(models.Model):
     title = models.CharField(null=True, max_length=256)
-    content1 = models.CharField(null=True, max_length=999)
-    content2 = models.CharField(null=True, max_length=999)
-    content3 = models.CharField(null=True, max_length=999)
-    content4 = models.CharField(null=True, max_length=999)
-    content5 = models.CharField(null=True, max_length=999)
-    url1 = models.CharField(null=True, max_length=256)
-    url2 = models.CharField(null=True, max_length=256)
-    url3 = models.CharField(null=True, max_length=256)
-    url4 = models.CharField(null=True, max_length=256)
-    url5 = models.CharField(null=True, max_length=256)
-    contentmap = models.CharField(null=True, max_length=256)
+    blogimage = models.ForeignKey(Image, on_delete=models.CASCADE,default=0)
+    blogcontent = models.ForeignKey(Content, on_delete=models.CASCADE, default=0)

@@ -19,6 +19,8 @@ urlpatterns = [
     path("blogadmin", views.blogadmin, name="blogadmin"),
     path("deleteuser/<int:id>", views.deleteuser, name="deleteuser"),
     path("blog", views.blog, name="blog"),
-    path("fileupload", views.fileupload, name="fileupload"),
+    path("fileupload/<int:id>", views.fileupload, name="fileupload"),
+    path("contententry/<int:blogid>", views.contententry, name="contententry"),
+    
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

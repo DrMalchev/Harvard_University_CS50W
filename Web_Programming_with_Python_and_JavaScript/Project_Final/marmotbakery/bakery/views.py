@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import user_passes_test
 from collections import OrderedDict
 from collections import defaultdict
 import json
-from .models import Blog, User, Orders, Image
+from .models import Blog, Content, User, Orders, Image
 from bakery.forms import EditForm, PlaceOrderForm, FileForm
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
@@ -17,6 +17,7 @@ from datetime import date, datetime, timedelta, time
 from django.db.models import Count
 from django import template
 import collections
+from types import SimpleNamespace
 register = template.Library()
 
 
@@ -320,7 +321,7 @@ def edit(request, id):
             "form": form,
             "user": request.user
 
-           })
+        })
 
 
 @login_required
@@ -451,16 +452,16 @@ def metrics(request):
 
 @user_passes_test(lambda u: u.is_superuser)
 def blogadmin(request):
-    
+
     if Blog.objects.all():
         return render(request, "bakery/blogadmin.html", {
-            "blog": Image.objects.all(),
-            })
+            "images": Image.objects.all(),
+        })
     else:
         return render(request, "bakery/blogadmin.html", {
-            "blog": Image.objects.all(),
+            "images": Image.objects.all(),
             "id": 0
-            })
+        })
 
 
 @user_passes_test(lambda u: u.is_superuser)
@@ -474,28 +475,42 @@ def deleteuser(request, id):
 
 def blog(request):
     return render(request, "bakery/blog.html", {
-        "blog": Image.objects.all(),
-        })
-    
+        "blog": Blog.objects.all(),
+    })
 
 
-def fileupload(request):
+def fileupload(request, id):
     if request.method == 'POST':
         form = FileForm(request.POST, request.FILES)
         if form.is_valid():
-            initial_obj= Image(file = request.FILES['file'])
+            initial_obj = Image(file=request.FILES['file'])
             initial_obj.filename = initial_obj.file.name
             initial_obj.filepath = initial_obj.file.url
+            initial_obj.blogid = id
             initial_obj.save()
-            
-            return render(request, 'blogadmin', {
-        'form': form
-    })
+            return HttpResponseRedirect("/blogadmin")
     else:
         form = FileForm()
-    return render(request, 'bakery/fileupload.html', {
-        'form': form
+        return render(request, 'bakery/fileupload.html', {
+            'id': id,
+            'form': form
+        })
+
+
+def contententry(request, blogid):
+    if request.method == "POST":
+        body = request.body
+        body=json.loads(request.body)
+        for key, value in body.items():
+            Content.objects.update_or_create(
+                content=value,
+                blogid=blogid,
+                number=key
+            )
+        #newentry.save()
+    return render(request, "bakery/blog.html", {
+        "blog": Blog.objects.all(),
+        "test": request.body
     })
 
-def blogentry(request, id):
-    pass
+    
