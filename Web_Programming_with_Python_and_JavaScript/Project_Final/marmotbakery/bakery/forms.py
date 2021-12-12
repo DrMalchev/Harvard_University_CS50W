@@ -62,4 +62,6 @@ class UserCreationForm(forms.ModelForm):
 
 class FileForm(forms.Form):
     file = forms.FileField()
+    isTitleImage = forms.BooleanField(label="Use this photo as title image?", required=False)
+    
 

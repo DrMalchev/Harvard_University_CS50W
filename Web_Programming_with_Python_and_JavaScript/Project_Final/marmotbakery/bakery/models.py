@@ -62,9 +62,10 @@ class UserAdmin(BaseUserAdmin):
         ),
     )
 class Content(models.Model):
-    content = models.CharField(null=True, max_length=999)
+    content = models.TextField(null=True)
     blogid = models.IntegerField(default=0, null=False)
     number = models.IntegerField(default=0, null=False)
+    isTitleImage = models.BooleanField(default=False)
 
 class Image(models.Model):
     file = models.FileField(upload_to='', null=True, blank=True)
@@ -74,6 +75,4 @@ class Image(models.Model):
     number = models.IntegerField(default=0, null=False)
 
 class Blog(models.Model):
-    title = models.CharField(null=True, max_length=256)
-    blogimage = models.ForeignKey(Image, on_delete=models.CASCADE,default=0)
-    blogcontent = models.ForeignKey(Content, on_delete=models.CASCADE, default=0)
+    blogid = models.IntegerField(default=0, null=False)

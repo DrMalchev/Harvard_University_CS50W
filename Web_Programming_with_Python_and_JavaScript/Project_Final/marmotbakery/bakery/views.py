@@ -452,14 +452,30 @@ def metrics(request):
 
 @user_passes_test(lambda u: u.is_superuser)
 def blogadmin(request):
-
     if Blog.objects.all():
-        return render(request, "bakery/blogadmin.html", {
-            "images": Image.objects.all(),
-        })
+        blogidList= Blog.objects.values_list('blogid', flat=True)
     else:
-        return render(request, "bakery/blogadmin.html", {
+        blogidList = []
+    
+    if Content.objects.exclude(blogid__in=blogidList):
+            #there are content blocks not part of blog => they are active
+            return render(request, "bakery/blogadmin.html", {
             "images": Image.objects.all(),
+            "contents": Content.objects.exclude(blogid__in=blogidList),
+            "id": getattr(Content.objects.last(), 'blogid'),
+            "title": getattr(Content.objects.exclude(blogid__in=blogidList).first(), 'content'),
+            #"title":"a b c"
+            
+            })
+    elif Content.objects.filter(blogid__in=blogidList):
+            # there are content blocks, but they are all passive
+            return render(request, "bakery/blogadmin.html", {
+            "id": getattr(Blog.objects.last(), 'blogid')+1
+            })
+        
+
+    else: # first ever entry
+        return render(request, "bakery/blogadmin.html", {
             "id": 0
         })
 
@@ -474,8 +490,19 @@ def deleteuser(request, id):
 
 
 def blog(request):
+    if Blog.objects.all():
+        blogidList= Blog.objects.all().values_list('blogid', flat=True)
+        blogdict = {}
+        for item in blogidList:
+           blogdict[item] = Content.objects.filter(blogid=item)
+           
+    else:
+        blogdict = {}
+
+
     return render(request, "bakery/blog.html", {
-        "blog": Blog.objects.all(),
+        "blog": blogdict,
+        #"test":blogidList
     })
 
 
@@ -483,11 +510,18 @@ def fileupload(request, id):
     if request.method == 'POST':
         form = FileForm(request.POST, request.FILES)
         if form.is_valid():
-            initial_obj = Image(file=request.FILES['file'])
-            initial_obj.filename = initial_obj.file.name
-            initial_obj.filepath = initial_obj.file.url
-            initial_obj.blogid = id
-            initial_obj.save()
+            newimage = Image(file=request.FILES['file'])
+            newimage.filename = newimage.file.name
+            newimage.filepath = newimage.file.url
+            newimage.blogid = id
+            newimage.number= getattr(Content.objects.last(), 'number') +1
+            newimage.save()
+            Content.objects.get_or_create(
+                blogid = id,
+                number = getattr(Content.objects.last(), 'number') +1,
+                content = newimage.file.url,
+                isTitleImage = form.cleaned_data['isTitleImage']
+            )
             return HttpResponseRedirect("/blogadmin")
     else:
         form = FileForm()
@@ -502,15 +536,21 @@ def contententry(request, blogid):
         body = request.body
         body=json.loads(request.body)
         for key, value in body.items():
-            Content.objects.update_or_create(
+            newcontent = Content.objects.update_or_create(
                 content=value,
                 blogid=blogid,
                 number=key
             )
-        #newentry.save()
+        
+        
     return render(request, "bakery/blog.html", {
         "blog": Blog.objects.all(),
         "test": request.body
     })
 
-    
+def createblog(request, blogid):
+    if request.method == "POST":
+        Blog.objects.update_or_create(
+            blogid=blogid
+        )
+    return HttpResponseRedirect("/blog")
