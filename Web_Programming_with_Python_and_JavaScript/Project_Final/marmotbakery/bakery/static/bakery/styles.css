@@ -1,6 +1,7 @@
+
 body {
     padding: 10px;
-    
+    background: whitesmoke;
 }
 
 .myMetricsP, .myMetricsC{
@@ -30,4 +31,36 @@ body {
     width: 200px;
     height: 200px;
     background: orange;
+}
+
+#bckgr{
+
+    padding: 5%;
+    color: rgb(235, 145, 235);
+    background-image: url('images/IMG_2944.JPEG');
+    background-repeat: no-repeat;
+    background-size: 100%;
+    justify-content: center;
+
+    
+}
+
+.color1{
+    border-radius: 5px; margin: 5px; padding: 5px; display: block; background: gainsboro; word-wrap:break-word;
+}
+
+.color2{
+    border-radius: 5px; margin: 5px; padding: 5px; display: block;background: rgb(241, 238, 238) ; word-wrap:break-word;
+}
+
+.imagediv img{
+    
+   width: 100%;
+}
+.imagediv {
+    margin: 10px;
+    width: 370px;
+    padding: 10px;
+    background: lightgrey;
+    border-radius: 10px;
 }

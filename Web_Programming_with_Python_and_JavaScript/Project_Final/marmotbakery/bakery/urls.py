@@ -22,6 +22,8 @@ urlpatterns = [
     path("fileupload/<int:id>", views.fileupload, name="fileupload"),
     path("contententry/<int:blogid>", views.contententry, name="contententry"),
     path("createblog/<int:blogid>", views.createblog, name="createblog"),
-    
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    path("blogdetails/<int:blogid>", views.blogdetails, name="blogdetails"),
+
+] #+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
 

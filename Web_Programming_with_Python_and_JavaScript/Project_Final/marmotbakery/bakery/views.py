@@ -22,7 +22,17 @@ register = template.Library()
 
 
 def index(request):
+    #
+    # list all available contents for section My Column
+    #
+    allblogTitles={}
+    for item in Content.objects.all():
+        if (item.number == 0):
+            allblogTitles[item.blogid] = item.content
+
+    #
     return render(request, "bakery/index.html", {
+        "allblogTitles": allblogTitles
 
     })
 
@@ -456,7 +466,15 @@ def blogadmin(request):
         blogidList= Blog.objects.values_list('blogid', flat=True)
     else:
         blogidList = []
-    
+    #
+    # list all available contents for section My Column
+    #
+    allblogTitles={}
+    for item in Content.objects.all():
+        if (item.number == 0):
+            allblogTitles[item.blogid] = item.content
+
+    #
     if Content.objects.exclude(blogid__in=blogidList):
             #there are content blocks not part of blog => they are active
             return render(request, "bakery/blogadmin.html", {
@@ -464,13 +482,14 @@ def blogadmin(request):
             "contents": Content.objects.exclude(blogid__in=blogidList),
             "id": getattr(Content.objects.last(), 'blogid'),
             "title": getattr(Content.objects.exclude(blogid__in=blogidList).first(), 'content'),
-            #"title":"a b c"
+            "allblogTitles":allblogTitles
             
             })
     elif Content.objects.filter(blogid__in=blogidList):
             # there are content blocks, but they are all passive
             return render(request, "bakery/blogadmin.html", {
-            "id": getattr(Blog.objects.last(), 'blogid')+1
+            "id": getattr(Blog.objects.last(), 'blogid')+1,
+            "allblogTitles":allblogTitles
             })
         
 
@@ -505,7 +524,7 @@ def blog(request):
         #"test":blogidList
     })
 
-
+@user_passes_test(lambda u: u.is_superuser)
 def fileupload(request, id):
     if request.method == 'POST':
         form = FileForm(request.POST, request.FILES)
@@ -530,7 +549,7 @@ def fileupload(request, id):
             'form': form
         })
 
-
+@user_passes_test(lambda u: u.is_superuser)
 def contententry(request, blogid):
     if request.method == "POST":
         body = request.body
@@ -548,9 +567,23 @@ def contententry(request, blogid):
         "test": request.body
     })
 
+@user_passes_test(lambda u: u.is_superuser)
 def createblog(request, blogid):
     if request.method == "POST":
         Blog.objects.update_or_create(
             blogid=blogid
         )
-    return HttpResponseRedirect("/blog")
+        return render(request, "bakery/blog.html", {
+            "blog": Blog.objects.all(),
+        })
+
+def blogdetails(request, blogid):
+    blogdlist = []
+    for item in Content.objects.filter(blogid=blogid):
+        blogdlist.append(item)
+
+    return render(request, "bakery/blogdetails.html", {
+        "blog": blogdlist
+        #"content": Content.objects.get(blogid=blogid),
+        
+    })

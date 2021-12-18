@@ -1,11 +1,71 @@
 {% extends "bakery/layout.html" %}
 
 {% block body %}
+{% load static %}
     <h2>Our Bread</h2>
-    {%for item in blog%}
     
-   <img src=" {{item.filepath}}" alt="{{item.filename}}"> 
-        {%endfor%}
+    <div style="justify-content: center; width: 100%; display: flex; flex-wrap: wrap;" class=" myCurrent">
+        <div style="margin: 10px;  border: 1px solid lightgray;  width: 800px;">
+            <div style="padding: 10px; text-align: center    ; background: lightgray">
+                <h5 >Bread Types</h5>
+            </div>
+            <div style="justify-content: center; width: 100%; display: flex; flex-wrap: wrap;">
+                <div class="imagediv">
+                    
+                    <img src="media/staticimages/IMG_2603.JPEG"/>
+                </div>
+                <div class="imagediv">
+                    
+                    <img src="media/staticimages/IMG_2888.JPEG"/>
+                </div>
+                <div class="imagediv">
+                    
+                    <img src="media/staticimages/IMG_2169.JPEG"/>
+                </div>
+                <div class="imagediv">
+                    
+                    <img src="media/staticimages/IMG_2702.JPEG"/>
+                </div>
+                <div class="imagediv">
+                    
+                    <img src="media/staticimages/IMG_2698.JPEG"/>
+                </div>
+                <div class="imagediv">
+                    
+                    <img src="media/staticimages/IMG_3266.JPG"/>
+                </div>
+                <div class="imagediv">
+                    
+                    <img src="media/staticimages/IMG_3185.JPEG"/>
+                </div>
+                <div class="imagediv">
+                    
+                    <img src="media/staticimages/IMG_2214.JPEG"/>
+                </div>
+            </div>
+        </div>
+            
+        <div style="margin: 10px; border: 1px solid lightgray;  width: 300px;">
+            <div style=" padding: 10px; text-align: center; background: lightgray">
+                <h5>My Column</h5>
+            </div>
+            <div>
+               
+                {%for key, value in allblogTitles.items %}
+                {% if forloop.counter|divisibleby:2 %}
+                <a class="color1" href='blogdetails/{{key}}' >{{value}}</a>
+                {% else %}
+                <a class="color2" href='blogdetails/{{key}}'>{{value}}</a>
+                {% endif %}
+                
+               
+                
+                    
+                    
+                {%endfor%}
+            </div>
+        </div>
+    </div>
         
         
 {% endblock %}
