@@ -136,7 +136,7 @@ def placeorder(request):
             if Orders.objects.all().count() != 0:
                 lastDeliveryDate2 = Orders.objects.order_by(
                     "-id").values("deliveryTime").first()["deliveryTime"].date()
-                Orders.objects.all().update(processed=1)
+                #Orders.objects.all().update(processed=1)
 
                 if datetime.now().hour > 21 and lastDeliveryDate2 > datetime.now().date() + timedelta(days=2):
                     if Orders.objects.order_by('-deliveryTime').latest('processed').processed == 1:
@@ -154,6 +154,12 @@ def placeorder(request):
                 deliveryOn = Orders.objects.order_by(
                     '-deliveryTime').latest('deliveryTime').deliveryTime.date() + timedelta(days=1)
                 Orders.objects.all().update(processed=1)
+            
+            #check if no orders longer than 2 days and zero
+            #
+            if Orders.objects.all().latest('deliveryTime').deliveryTime.date() + timedelta(2) < datetime.now().date():
+                cumuTemp=0
+            
 
             order = Orders.objects.create(
                 firstName=form.cleaned_data['firstName'],
@@ -210,14 +216,26 @@ def placeorder(request):
         if Orders.objects.all().count() == 0:
             maxDailyLeft = 10
         else:
+            
+
             maxDailyLeft = Orders.objects.all().last().cumulative
             if maxDailyLeft == 10:
                 maxDailyLeft = 10
             else:
-                maxDailyLeft = 10 - Orders.objects.all().last().cumulative
+                a=1
+                #check if date is longer than 2 days ago, then zero the cumulative
+                #
+                if Orders.objects.all().latest('deliveryTime').deliveryTime.date() + timedelta(2) < datetime.now().date():
+                    # update all past orders as processed
+                    Orders.objects.all().update(processed=1)
+                    #set new start value
+                    maxDailyLeft = 10
+                else:
+                    maxDailyLeft = 10 - Orders.objects.all().last().cumulative
         return render(request, 'bakery/placeorder.html', {
             'form': form,
-            'maxDailyLeft': maxDailyLeft
+            'maxDailyLeft': maxDailyLeft,
+            #'test': Orders.objects.all().latest('deliveryTime').deliveryTime.date() + timedelta(2) < datetime.now().date()
         })
 
 
@@ -379,7 +397,7 @@ def taskmanager(request):
         deliveryTime__gte=datetime.now().date() + timedelta(days=2))
     todoDates = set()
     dailyTasks = {}
-    for order in todoOrders:
+    for order in todoOrders.order_by('pk'):
         todoDates.add(order.deliveryTime.date() - timedelta(days=2))
     todoDates = list(todoDates)
     #
@@ -479,9 +497,9 @@ def blogadmin(request):
             #there are content blocks not part of blog => they are active
             return render(request, "bakery/blogadmin.html", {
             "images": Image.objects.all(),
-            "contents": Content.objects.exclude(blogid__in=blogidList),
-            "id": getattr(Content.objects.last(), 'blogid'),
-            "title": getattr(Content.objects.exclude(blogid__in=blogidList).first(), 'content'),
+            "contents": Content.objects.exclude(blogid__in=blogidList).order_by('number'),
+            "id": getattr(Content.objects.exclude(blogid__in=blogidList).last(), 'blogid'),
+            "title": getattr(Content.objects.exclude(blogid__in=blogidList).order_by('number').first(), 'content'),
             "allblogTitles":allblogTitles
             
             })
@@ -513,7 +531,7 @@ def blog(request):
         blogidList= Blog.objects.all().values_list('blogid', flat=True)
         blogdict = {}
         for item in blogidList:
-           blogdict[item] = Content.objects.filter(blogid=item)
+           blogdict[item] = Content.objects.filter(blogid=item).order_by('number')
            
     else:
         blogdict = {}
@@ -555,11 +573,16 @@ def contententry(request, blogid):
         body = request.body
         body=json.loads(request.body)
         for key, value in body.items():
-            newcontent = Content.objects.update_or_create(
+            Content.objects.filter(blogid=blogid, number=key).update_or_create(
                 content=value,
                 blogid=blogid,
                 number=key
             )
+            # if duplicate Contents => delete old
+            if Content.objects.filter(blogid=blogid, number=key).count() >1:
+                objToKeep = Content.objects.filter(blogid=blogid, number=key).latest('pk')
+                Content.objects.filter(blogid=blogid, number=key).exclude(pk=objToKeep.pk).delete()
+
         
         
     return render(request, "bakery/blog.html", {
@@ -579,7 +602,7 @@ def createblog(request, blogid):
 
 def blogdetails(request, blogid):
     blogdlist = []
-    for item in Content.objects.filter(blogid=blogid):
+    for item in Content.objects.filter(blogid=blogid).order_by('number'):
         blogdlist.append(item)
 
     return render(request, "bakery/blogdetails.html", {
@@ -587,3 +610,14 @@ def blogdetails(request, blogid):
         #"content": Content.objects.get(blogid=blogid),
         
     })
+
+def deleteblog(request, blogid):
+    Content.objects.filter(blogid=blogid).delete()
+    Image.objects.filter(blogid=blogid).delete()
+    Blog.objects.filter(blogid=blogid).delete()
+    return HttpResponseRedirect('/blog')
+
+def editblog(request, blogid):
+    
+    Blog.objects.filter(blogid=blogid).delete()
+    return HttpResponseRedirect('/blogadmin')

@@ -23,8 +23,8 @@ class Orders(models.Model):
         ('Oat Porridge Bread', 'Oat Porridge Bread'),
         ('Semolina Bread', 'Semolina Bread'),
         ('100% Rye Bread', '100% Rye Bread'),
-        ('Focaccia', 'Focaccia'),
-        ('Toast Bread', 'Toast Bread'),
+        ('Seeded', 'Seeded'),
+        ('Baguette', 'Baguette'),
         ('Sweet Brioche', 'Sweet Brioche')
     )
 

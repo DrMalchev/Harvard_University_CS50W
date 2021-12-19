@@ -23,6 +23,8 @@ urlpatterns = [
     path("contententry/<int:blogid>", views.contententry, name="contententry"),
     path("createblog/<int:blogid>", views.createblog, name="createblog"),
     path("blogdetails/<int:blogid>", views.blogdetails, name="blogdetails"),
+    path("deleteblog/<int:blogid>", views.deleteblog, name="deleteblog"),
+    path("editblog/<int:blogid>", views.editblog, name="editblog"),
 
 ] #+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
